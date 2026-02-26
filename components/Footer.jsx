@@ -65,7 +65,7 @@ export default function Footer() {
       />
 
       {/* ── Main footer content ── */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16 pb-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative z-10 text-center md:text-left">
 
         {/* ── Col 1: Brand ── */}
         <motion.div
@@ -86,7 +86,7 @@ export default function Footer() {
           </p>
 
           {/* Socials */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
             {socials.map((s, i) => (
               <motion.a
                 key={i}
@@ -113,14 +113,14 @@ export default function Footer() {
           viewport={{ once: true }}
         >
           <h3 className="text-white font-bold text-[16px] mb-5">Quick Links</h3>
-          <ul className="space-y-3">
+          <ul className="space-y-3 inline-block">
             {quickLinks.map((link) => (
               <li key={link.label}>
                 <Link href={link.href}>
                   <motion.span
                     whileHover={{ x: 5, color: "#A7D7C5" }}
                     transition={{ duration: 0.18 }}
-                    className="text-[#C5E8D8]/80 text-sm cursor-pointer flex items-center gap-1.5 hover:text-[#A7D7C5] transition-colors"
+                    className="text-[#C5E8D8]/80 text-sm cursor-pointer flex items-center justify-center md:justify-start gap-1.5 hover:text-[#A7D7C5] transition-colors"
                   >
                     <span className="w-1 h-1 rounded-full bg-[#2E7D5B]" />
                     {link.label}
@@ -140,13 +140,13 @@ export default function Footer() {
           viewport={{ once: true }}
         >
           <h3 className="text-white font-bold text-[16px] mb-5">Services</h3>
-          <ul className="space-y-3">
+          <ul className="space-y-3 inline-block">
             {services.map((s) => (
               <li key={s}>
                 <motion.span
                   whileHover={{ x: 5, color: "#A7D7C5" }}
                   transition={{ duration: 0.18 }}
-                  className="text-[#C5E8D8]/80 text-sm flex items-center gap-1.5 hover:text-[#A7D7C5] transition-colors cursor-default"
+                  className="text-[#C5E8D8]/80 text-sm flex items-center justify-center md:justify-start gap-1.5 hover:text-[#A7D7C5] transition-colors cursor-default"
                 >
                   <span className="w-1 h-1 rounded-full bg-[#2E7D5B]" />
                   {s}
@@ -165,23 +165,23 @@ export default function Footer() {
           viewport={{ once: true }}
         >
           <h3 className="text-white font-bold text-[16px] mb-5">Contact Us</h3>
-          <ul className="space-y-4">
-            <li className="flex items-start gap-3">
+          <ul className="space-y-4 inline-block">
+            <li className="flex items-start gap-3 justify-center md:justify-start">
               <MdLocationOn className="text-[#A7D7C5] mt-0.5 shrink-0" size={18} />
               <span className="text-[#C5E8D8]/80 text-sm leading-relaxed">
-                India · Global Youth Climate Platform
+                 Mysore, Karnataka India 570018
               </span>
             </li>
-            <li className="flex items-center gap-3">
+            <li className="flex items-center gap-3 justify-center md:justify-start">
               <MdPhone className="text-[#A7D7C5] shrink-0" size={18} />
               <a href="tel:+919999999999" className="text-[#C5E8D8]/80 text-sm hover:text-[#A7D7C5] transition-colors">
-                +91 00000 00000
+                +91 7795715495
               </a>
             </li>
-            <li className="flex items-center gap-3">
+            <li className="flex items-center gap-3 justify-center md:justify-start">
               <MdEmail className="text-[#A7D7C5] shrink-0" size={18} />
               <a href="mailto:info@carbonclock.in" className="text-[#C5E8D8]/80 text-sm hover:text-[#A7D7C5] transition-colors">
-                info@carbonclock.in
+                carbonclock@gmail.com
               </a>
             </li>
           </ul>
@@ -208,7 +208,7 @@ export default function Footer() {
         className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 relative z-10"
       >
         <p className="text-[#A7D7C5]/70 text-sm text-center sm:text-left">
-          © 2025 Carbon Clock. All rights reserved.
+          ©2026 Carbon Clock. All rights reserved.
         </p>
         <div className="flex items-center gap-4 text-sm text-[#A7D7C5]/70">
           <Link href="/privacy-policy" className="hover:text-[#A7D7C5] transition-colors">Privacy Policy</Link>

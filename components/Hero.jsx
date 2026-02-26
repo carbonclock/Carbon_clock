@@ -61,18 +61,18 @@ export default function Hero() {
         delay={0.8} duration={8}
       />
 
-      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-20 w-full grid md:grid-cols-2 gap-14 items-center">
+      <div className="relative max-w-7xl mx-auto px-6 sm:px-8 lg:px-16 py-16 lg:py-20 w-full grid grid-cols-1 xl:grid-cols-2 gap-10 lg:gap-14 items-center">
 
         {/* ══ LEFT — text content ══ */}
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="flex flex-col"
+          className="flex flex-col items-center text-center"
         >
           {/* Eyebrow tag */}
           <motion.div variants={fadeUp}>
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#2E7D5B] bg-[#2E7D5B]/10 px-3 py-1 rounded-full mb-6 tracking-wide">
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#2E7D5B] bg-[#2E7D5B]/10 px-3 py-1 rounded-full mb-6 tracking-wide lg:text-center">
               <span className="w-2 h-2 rounded-full bg-[#2E7D5B] animate-pulse" />
               Youth‑Led Climate Initiative
             </span>
@@ -81,7 +81,7 @@ export default function Hero() {
           {/* Headline */}
           <motion.h1
             variants={fadeUp}
-            className="text-5xl md:text-[3.6rem] leading-[1.1] font-bold text-[#0F3D2E] tracking-tight"
+            className="text-4xl sm:text-5xl md:text-[2.8rem] lg:text-[3.6rem] leading-[1.1] font-bold text-[#0F3D2E] tracking-tight"
           >
             The Climate Clock
             <br />
@@ -102,7 +102,7 @@ export default function Hero() {
           {/* Body */}
           <motion.p
             variants={fadeUp}
-            className="mt-6 text-[1.05rem] leading-relaxed text-[#355F53] max-w-lg"
+            className="mt-5 lg:mt-6 text-[0.95rem] lg:text-[1.05rem] leading-relaxed text-[#355F53] max-w-lg"
           >
             Carbon Clock is a youth‑led sustainability initiative focused on
             carbon literacy, climate education, and measurable environmental
@@ -112,7 +112,7 @@ export default function Hero() {
           {/* Trust strip — on mobile shows here (below paragraph, above image) */}
           <motion.div
             variants={fadeUp}
-            className="mt-8 flex md:hidden items-center gap-4 text-sm text-[#355F53] flex-wrap"
+            className="mt-8 flex xl:hidden items-center gap-4 text-sm text-[#355F53] flex-wrap justify-center"
           >
             {["Carbon Literacy", "Global Reach", "Youth‑Driven"].map((tag) => (
               <span key={tag} className="flex items-center gap-1.5">
@@ -125,11 +125,11 @@ export default function Hero() {
           </motion.div>
 
           {/* CTAs — hidden on mobile, visible on sm and above */}
-          <motion.div variants={fadeUp} className="mt-8 hidden sm:flex flex-row gap-4">
+          <motion.div variants={fadeUp} className="mt-6 lg:mt-8 hidden sm:flex flex-row flex-wrap gap-3 lg:gap-4 justify-center">
             <motion.button
               whileHover={{ scale: 1.04, boxShadow: "0 8px 28px rgba(15,61,46,0.30)" }}
               whileTap={{ scale: 0.97 }}
-              className="px-8 py-4 bg-[#0F3D2E] text-white rounded-lg text-[15px] font-semibold tracking-wide transition-colors hover:bg-[#2E7D5B]"
+              className="px-6 py-3 lg:px-8 lg:py-4 bg-[#0F3D2E] text-white rounded-lg text-sm lg:text-[15px] font-semibold tracking-wide transition-colors hover:bg-[#2E7D5B]"
             >
               Explore Carbon Clock
             </motion.button>
@@ -137,7 +137,7 @@ export default function Hero() {
             <motion.button
               whileHover={{ scale: 1.04, backgroundColor: "#0F3D2E", color: "#fff" }}
               whileTap={{ scale: 0.97 }}
-              className="px-8 py-4 border-2 border-[#0F3D2E] text-[#0F3D2E] rounded-lg text-[15px] font-semibold tracking-wide transition-all"
+              className="px-6 py-3 lg:px-8 lg:py-4 border-2 border-[#0F3D2E] text-[#0F3D2E] rounded-lg text-sm lg:text-[15px] font-semibold tracking-wide transition-all"
             >
               Join Climate Correction Day
             </motion.button>
@@ -146,7 +146,7 @@ export default function Hero() {
           {/* Trust strip — desktop only */}
           <motion.div
             variants={fadeUp}
-            className="mt-12 hidden md:flex items-center gap-6 text-sm text-[#355F53]"
+            className="mt-12 hidden xl:flex items-center justify-center gap-6 text-sm text-[#355F53]"
           >
             {["Carbon Literacy", "Global Reach", "Youth‑Driven"].map((tag) => (
               <span key={tag} className="flex items-center gap-1.5">
@@ -164,7 +164,7 @@ export default function Hero() {
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="flex justify-center items-center relative mt-10 md:mt-0"
+          className="flex justify-center items-center relative mt-10 xl:mt-0"
         >
           {/* Outer floating wrapper */}
           <motion.div
@@ -183,7 +183,7 @@ export default function Hero() {
                 transformStyle: "preserve-3d",
                 perspective: 800,
               }}
-              className="relative w-80 h-65 sm:w-100 sm:h-80 md:w-110 md:h-90 rounded-2xl overflow-hidden shadow-2xl cursor-pointer"
+              className="relative w-80 h-65 sm:w-100 sm:h-80 md:w-95 md:h-77.5 lg:w-110 lg:h-90 rounded-2xl overflow-hidden shadow-2xl cursor-pointer"
             >
               {/* The image — clean, no overlays or badges */}
               <Image

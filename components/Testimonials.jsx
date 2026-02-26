@@ -10,7 +10,7 @@ const testimonials = [
     company: "GreenCore Solutions",
     review:
       "Earning the Carbon Literacy Certificate from Carbon Clock was a turning point in my career. The curriculum was practical, well-structured, and grounded in real-world frameworks. I now confidently lead carbon accounting projects at my organisation — something I couldn't have done without this certification.",
-    rating: 5,
+    rating: 4,
     initials: "PS",
     color: "bg-[#2E7D5B]",
   },
@@ -20,7 +20,7 @@ const testimonials = [
     company: "EcoTech Ventures",
     review:
       "The certification gave me a deep understanding of Scope 1, 2, and 3 emissions and lifecycle assessment. The content was accessible yet thorough. Carbon Clock's approach of making complex sustainability concepts simple is exactly what the industry needs. Highly recommended for any young professional.",
-    rating: 5,
+    rating: 3,
     initials: "AM",
     color: "bg-[#0F3D2E]",
   },
@@ -67,7 +67,7 @@ const StarRating = ({ count = 5 }) => (
 
 function TestimonialCard({ t }) {
   return (
-    <div className="group relative bg-white rounded-2xl p-7 border border-[#A7D7C5]/50 shadow-sm overflow-hidden flex flex-col shrink-0 w-[320px] md:w-100 h-auto">
+    <div className="group relative bg-white rounded-2xl p-5 md:p-6 lg:p-7 border border-[#A7D7C5]/50 shadow-sm overflow-hidden flex flex-col shrink-0 w-70 sm:w-[320px] md:w-87.5 lg:w-100 h-auto">
       {/* Top accent */}
       <div className="absolute top-0 left-0 right-0 h-0.75 bg-linear-to-r from-[#2E7D5B] to-[#A7D7C5]" />
       {/* Hover bloom */}
@@ -106,97 +106,94 @@ function TestimonialCard({ t }) {
 
 export default function Testimonials() {
   return (
-    <section className="relative bg-[#F4F8F6] py-24 overflow-hidden">
+    <section className="relative bg-[#F4F8F6] py-16 md:py-20 lg:py-24 overflow-hidden">
+      <div className="max-w-300 mx-auto p-4 md:p-6 lg:p-4">
+        {/* Keyframes for infinite scroll */}
+        <style>{`
+          @keyframes infiniteScroll {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-33.333%); }
+          }
+          .scroll-track {
+            display: flex;
+            gap: 24px;
+            width: max-content;
+            animation: infiniteScroll 30s linear infinite;
+          }
+          .scroll-track:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
 
-      {/* Keyframes for infinite scroll */}
-      <style>{`
-        @keyframes infiniteScroll {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
-        }
-        .scroll-track {
-          display: flex;
-          gap: 24px;
-          width: max-content;
-          animation: infiniteScroll 30s linear infinite;
-        }
-        .scroll-track:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
+        {/* Background orbs */}
+        <motion.div
+          animate={{ y: [0, -22, 0], x: [0, 14, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-0 -right-20 w-80 h-80 rounded-full bg-[#A7D7C5]/20 blur-3xl pointer-events-none"
+        />
+        <motion.div
+          animate={{ y: [0, 18, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+          className="absolute bottom-0 -left-15 w-64 h-64 rounded-full bg-[#2E7D5B]/10 blur-3xl pointer-events-none"
+        />
 
-      {/* Background orbs */}
-      <motion.div
-        animate={{ y: [0, -22, 0], x: [0, 14, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-0 -right-20 w-80 h-80 rounded-full bg-[#A7D7C5]/20 blur-3xl pointer-events-none"
-      />
-      <motion.div
-        animate={{ y: [0, 18, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-        className="absolute bottom-0 -left-15 w-64 h-64 rounded-full bg-[#2E7D5B]/10 blur-3xl pointer-events-none"
-      />
-
-      {/* Heading */}
-      <div className="max-w-6xl mx-auto px-6 md:px-16 relative z-10">
-        <div className="text-center mb-16">
-          <FadeUp>
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#2E7D5B] bg-[#2E7D5B]/10 px-4 py-1.5 rounded-full mb-5 tracking-wide">
-              <span className="w-2 h-2 rounded-full bg-[#2E7D5B] animate-pulse" />
-              Certified & Verified
-            </span>
-          </FadeUp>
-
-          <FadeUp delay={0.1}>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0F3D2E] leading-tight">
-              What Our{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10 text-[#2E7D5B]">Clients Say</span>
-                <motion.span
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.5, duration: 0.5, ease: "easeOut" }}
-                  className="absolute bottom-1 left-0 w-full h-0.75 bg-[#2E7D5B]/40 origin-left rounded-full"
-                />
+        {/* Heading */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-10 lg:px-16 relative z-10">
+          <div className="text-center mb-10 md:mb-14 lg:mb-16">
+            <FadeUp>
+              <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#2E7D5B] bg-[#2E7D5B]/10 px-4 py-1.5 rounded-full mb-5 tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-[#2E7D5B] animate-pulse" />
+                Certified & Verified
               </span>
-            </h2>
-          </FadeUp>
+            </FadeUp>
 
-          <FadeUp delay={0.2}>
-            <p className="mt-4 text-[#355F53] text-lg max-w-xl mx-auto leading-relaxed">
-              Hear from professionals who earned their Carbon Clock certificate
-              and transformed how they approach sustainability.
-            </p>
-          </FadeUp>
+            <FadeUp delay={0.1}>
+              <h2 className="text-3xl sm:text-4xl md:text-[2.75rem] lg:text-5xl font-bold text-[#0F3D2E] leading-tight">
+                What Our{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10 text-[#2E7D5B]">Clients Say</span>
+                  <motion.span
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 1, duration: 1, ease: "easeOut" }}
+                    className="absolute bottom-1 left-0 w-full h-0.75 bg-[#2E7D5B]/40 origin-left rounded-full"
+                  />
+                </span>
+              </h2>
+            </FadeUp>
 
-          <FadeUp delay={0.3}>
-            <div className="mt-7 flex items-center justify-center gap-3">
-              <span className="h-px w-16 bg-[#A7D7C5] rounded-full" />
-              <span className="w-2 h-2 rounded-full bg-[#2E7D5B]" />
-              <span className="h-px w-16 bg-[#A7D7C5] rounded-full" />
-            </div>
-          </FadeUp>
+            <FadeUp delay={0.2}>
+              <p className="mt-4 text-[#355F53] text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+                Hear from professionals who earned their Carbon Clock certificate
+                and transformed how they approach sustainability.
+              </p>
+            </FadeUp>
+
+            <FadeUp delay={0.3}>
+              <div className="mt-7 flex items-center justify-center gap-3">
+                <span className="h-px w-16 bg-[#A7D7C5] rounded-full" />
+                <span className="w-2 h-2 rounded-full bg-[#2E7D5B]" />
+                <span className="h-px w-16 bg-[#A7D7C5] rounded-full" />
+              </div>
+            </FadeUp>
+          </div>
+        </div>
+
+        {/* ── Infinite scroll strip — full bleed ── */}
+        <div className="relative w-full overflow-hidden">
+          {/* Left fade edge */}
+          <div className="absolute left-0 top-0 bottom-0 w-28 z-10 pointer-events-none" />
+          {/* Right fade edge */}
+          <div className="absolute right-0 top-0 bottom-0 w-28 z-10 pointer-events-none" />
+
+          <div className="scroll-track px-6">
+            {loopCards.map((t, i) => (
+              <TestimonialCard key={i} t={t} />
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* ── Infinite scroll strip — full bleed ── */}
-      <div className="relative w-full overflow-hidden">
-        {/* Left fade edge */}
-        <div className="absolute left-0 top-0 bottom-0 w-28 bg-linear-to-r from-[#F4F8F6] to-transparent z-10 pointer-events-none" />
-        {/* Right fade edge */}
-        <div className="absolute right-0 top-0 bottom-0 w-28 bg-linear-to-l from-[#F4F8F6] to-transparent z-10 pointer-events-none" />
-
-        <div className="scroll-track px-6">
-          {loopCards.map((t, i) => (
-            <TestimonialCard key={i} t={t} />
-          ))}
-        </div>
-      </div>
-
-      {/* Stats strip */}
-     
-
     </section>
   );
 }

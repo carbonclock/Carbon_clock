@@ -89,7 +89,7 @@ export default function Navbar() {
                 }}
                 whileTap={{ scale: 0.96 }}
                 transition={{ duration: 0.15 }}
-                className="px-6 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[16px] font-semibold tracking-wide transition-colors duration-200"
+                className="px-6 py-2.5 bg-[#0F3D2E] text-white rounded-lg text-[15px] font-semibold tracking-wide transition-colors hover:bg-[#2E7D5B] duration-200"
               >
                 Contact Us
               </motion.button>

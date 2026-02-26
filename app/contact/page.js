@@ -195,7 +195,7 @@ export default function ContactPage() {
 
             {/* Message */}
             <motion.div variants={fieldVariants}>
-              <label className={labelClass}>Message (Optional)</label>
+              <label className={labelClass}>Message</label>
               <div className="relative">
                 <FiMessageSquare className="absolute left-3 top-4 text-[#2E7D5B]" size={16} />
                 <textarea name="message" value={formData.message} onChange={handleChange} placeholder="Write your message..." rows="4" className={`${inputClass} resize-none`} />
@@ -288,7 +288,7 @@ export default function ContactPage() {
                   </div>
                   <div className="pt-1">
                     <h3 className="font-bold text-[#0F3D2E] text-lg">Email Us</h3>
-                    <p className="text-[#355F53] text-sm mt-0.5">info@carbonclock.in</p>
+                    <p className="text-[#355F53] text-sm mt-0.5">carbonclock@gmail.com</p>
                   </div>
                 </motion.div>
 
@@ -303,7 +303,7 @@ export default function ContactPage() {
                   </div>
                   <div className="pt-1">
                     <h3 className="font-bold text-[#0F3D2E] text-lg">Call Us</h3>
-                    <p className="text-[#355F53] text-sm mt-0.5">+91 00000 00000</p>
+                    <p className="text-[#355F53] text-sm mt-0.5">+91 7795715495</p>
                     <p className="text-[#7aab94] text-xs mt-0.5">Mon–Sat, 24/7</p>
                   </div>
                 </motion.div>
@@ -320,7 +320,7 @@ export default function ContactPage() {
                   <div className="pt-1">
                     <h3 className="font-bold text-[#0F3D2E] text-lg">Visit Us</h3>
                     <p className="text-[#355F53] text-sm mt-0.5 leading-relaxed">
-                      India · Global Youth Climate Platform
+                      Mysore, Karnataka India 570018
                     </p>
                   </div>
                 </motion.div>
