@@ -127,7 +127,7 @@ export default function ContactPage() {
           </motion.span>
 
           <h1 className="text-5xl md:text-6xl font-bold text-[#0F3D2E]">
-            Connect{" "}
+            Contact{" "}
             <span className="text-[#2E7D5B]">Us</span>
           </h1>
           <motion.p
