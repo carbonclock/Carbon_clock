@@ -81,28 +81,38 @@ export default function Founder() {
                 />
               </motion.div>
 
-              {/* LinkedIn below image */}
-              <motion.div whileHover={{ scale: 1.1, y: -2 }} transition={{ duration: 0.2 }}>
-                <Link
-                  href="https://www.linkedin.com/in/vishnu-simhadri-87935323a/"
-                  target="_blank"
-                  className="flex items-center gap-2 px-4 py-2 bg-[#0F3D2E] text-white text-sm font-semibold rounded-xl hover:bg-[#2E7D5B] transition-colors shadow-md"
+              {/* Social buttons — row on mobile, column on md+ */}
+              <div className="flex flex-row md:flex-col gap-3 w-full">
+                <motion.div
+                  whileHover={{ scale: 1.07, y: -2 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1 md:flex-none"
                 >
-                  <FaLinkedin size={17} />
-                  LinkedIn
-                </Link>
-              </motion.div>
-              {/* Instagram below LinkedIn */}
-              <motion.div whileHover={{ scale: 1.1, y: -2 }} transition={{ duration: 0.2 }}>
-                <Link
-                  href="https://www.instagram.com/vishhhhnnuuuu/"
-                  target="_blank"
-                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 text-sm font-semibold rounded-xl hover:bg-blue-50 transition-colors shadow-md mt-2"
+                  <Link
+                    href="https://www.linkedin.com/in/vishnu-simhadri-87935323a/"
+                    target="_blank"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0F3D2E] text-white text-sm font-semibold rounded-xl hover:bg-[#2E7D5B] transition-colors shadow-md"
+                  >
+                    <FaLinkedin className="w-5 h-5 shrink-0" />
+                    LinkedIn
+                  </Link>
+                </motion.div>
+
+                <motion.div
+                  whileHover={{ scale: 1.07, y: -2 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex-1 md:flex-none"
                 >
-                  <FaInstagram className="w-6 h-6 md:w-7 md:h-7" color="#1877F2" />
-                  Instagram
-                </Link>
-              </motion.div>
+                  <Link
+                    href="https://www.instagram.com/vishhhhnnuuuu/"
+                    target="_blank"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-[#0F3D2E] text-white text-sm font-semibold rounded-xl hover:bg-[#2E7D5B] transition-colors shadow-md"
+                  >
+                    <FaInstagram className="w-5 h-5 shrink-0" />
+                    Instagram
+                  </Link>
+                </motion.div>
+              </div>
             </div>
 
             {/* ── Right: Content ── */}

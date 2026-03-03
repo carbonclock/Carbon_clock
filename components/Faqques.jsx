@@ -79,13 +79,13 @@ const FAQItem = ({ item, index, isOpen, onToggle }) => {
           transition={{ delay: 0.2 + index * 0.06, duration: 0.45 }}
           className={`absolute top-0 left-0 right-0 h-0.5 origin-left rounded-t-2xl transition-all duration-300 ${
             isOpen
-              ? "bg-gradient-to-r from-[#2E7D5B] via-[#A7D7C5] to-[#2E7D5B]"
-              : "bg-gradient-to-r from-[#2E7D5B] to-[#A7D7C5]"
+              ? "bg-linear-to-r from-[#2E7D5B] via-[#A7D7C5] to-[#2E7D5B]"
+              : "bg-linear-to-r from-[#2E7D5B] to-[#A7D7C5]"
           }`}
         />
 
         {/* Hover bloom */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#E6F2ED]/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-br from-[#E6F2ED]/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
 
         {/* Question button */}
         <button
@@ -106,7 +106,7 @@ const FAQItem = ({ item, index, isOpen, onToggle }) => {
           <motion.span
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className={`flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
+            className={`shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
               isOpen
                 ? "bg-[#2E7D5B] text-white"
                 : "bg-[#F4F8F6] text-[#2E7D5B] hover:bg-[#E6F2ED]"
@@ -140,7 +140,7 @@ const FAQItem = ({ item, index, isOpen, onToggle }) => {
                 animate={{ scaleX: 1 }}
                 exit={{ scaleX: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mx-5 md:mx-6 h-px bg-gradient-to-r from-[#A7D7C5] to-transparent origin-left"
+                className="mx-5 md:mx-6 h-px bg-linear-to-r from-[#A7D7C5] to-transparent origin-left"
               />
               <motion.div
                 initial={{ y: -8, opacity: 0 }}
@@ -150,7 +150,7 @@ const FAQItem = ({ item, index, isOpen, onToggle }) => {
                 className="relative z-10 px-5 md:px-6 pt-4 pb-6"
               >
                 <div className="flex gap-3 md:gap-4">
-                  <div className="flex-shrink-0 w-0.5 bg-gradient-to-b from-[#2E7D5B] to-[#A7D7C5] rounded-full self-stretch" />
+                  <div className="shrink-0 w-0.5 bg-linear-to-b from-[#2E7D5B] to-[#A7D7C5] rounded-full self-stretch" />
                   <p className="text-[#355F53] text-sm md:text-[15px] leading-relaxed">
                     {item.answer}
                   </p>

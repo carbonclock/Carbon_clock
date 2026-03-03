@@ -104,17 +104,10 @@ const KnowledgePreview = () => {
           </FadeUp>
 
           <FadeUp delay={0.1}>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#0F3D2E] leading-tight">
-              Sustainability{" "}
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+             
               <span className="relative inline-block">
-                <span className="relative z-10 text-[#2E7D5B]">Knowledge Hub</span>
-                <motion.span
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.4, duration: 0.5, ease: "easeOut" }}
-                  className="absolute bottom-1 left-0 w-full h-0.75 bg-[#2E7D5B]/40 origin-left rounded-full"
-                />
+                <span className="relative z-10 text-[#0F3D2E] ">Knowledge Hub</span>
               </span>
             </h2>
           </FadeUp>
@@ -241,7 +234,7 @@ const KnowledgePreview = () => {
               <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-[#A7D7C5]/60">
 
                 {/* Top accent gradient bar */}
-                <div className="h-1.5 w-full bg-gradient-to-r from-[#2E7D5B] via-[#A7D7C5] to-[#2E7D5B]" />
+                <div className="h-1.5 w-full bg-linear-to-r from-[#2E7D5B] via-[#A7D7C5] to-[#2E7D5B]" />
 
                 {/* Inner content */}
                 <div className="p-8">
@@ -272,7 +265,7 @@ const KnowledgePreview = () => {
                       whileHover={{ scale: 1.12, rotate: 90 }}
                       whileTap={{ scale: 0.9 }}
                       transition={{ duration: 0.2 }}
-                      className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F4F8F6] hover:bg-[#E6F2ED] border border-[#A7D7C5]/50 flex items-center justify-center text-[#2E7D5B] transition-colors"
+                      className="shrink-0 w-8 h-8 rounded-full bg-[#F4F8F6] hover:bg-[#E6F2ED] border border-[#A7D7C5]/50 flex items-center justify-center text-[#2E7D5B] transition-colors"
                       aria-label="Close"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -286,7 +279,7 @@ const KnowledgePreview = () => {
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: 1 }}
                     transition={{ delay: 0.22, duration: 0.4, ease: "easeOut" }}
-                    className="h-px bg-gradient-to-r from-[#A7D7C5] to-transparent mb-5 origin-left"
+                    className="h-px bg-linear-to-r from-[#A7D7C5] to-transparent mb-5 origin-left"
                   />
 
                   {/* Detail paragraph */}
