@@ -18,7 +18,7 @@ const fadeUp = {
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
-  { label: "Knowledge Hub", href: "/knowledge-hub" },
+  { label: "Knowledge Hub", href: "/resources" },
   { label: "Climate Correction Day", href: "/climate-correction-day" },
   { label: "Resources", href: "/Resources" },
   { label: "Contact Us", href: "/contact" },
@@ -34,11 +34,11 @@ const services = [
 ];
 
 const socials = [
-  { icon: <FaWhatsapp size={18} />, href: "#" },
-  { icon: <FaLinkedin size={18} />, href: "https://www.linkedin.com/in/vishnu-simhadri-87935323a/" },
+  // Removed WhatsApp
+  { icon: <FaLinkedin size={18} />, href: "https://www.linkedin.com/company/carbon-clock/posts/?feedView=all" },
   { icon: <FaFacebook size={18} />, href: "#" },
-  { icon: <FaInstagram size={18} />, href: "#" },
-  { icon: <FaXTwitter size={18} />, href: "#" },
+  { icon: <FaInstagram size={18} />, href: "https://www.instagram.com/_carbonclock_?igsh=MThwNmI0cGNzNDM3bQ%3D%3D" },
+  // Removed Twitter
  
 ];
 

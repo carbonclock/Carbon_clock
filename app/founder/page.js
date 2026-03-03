@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { FaLinkedin } from "react-icons/fa";
+import { FaInstagram } from "react-icons/fa";
 
 export default function Founder() {
   return (
@@ -89,6 +90,17 @@ export default function Founder() {
                 >
                   <FaLinkedin size={17} />
                   LinkedIn
+                </Link>
+              </motion.div>
+              {/* Instagram below LinkedIn */}
+              <motion.div whileHover={{ scale: 1.1, y: -2 }} transition={{ duration: 0.2 }}>
+                <Link
+                  href="https://www.instagram.com/vishhhhnnuuuu/"
+                  target="_blank"
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 text-sm font-semibold rounded-xl hover:bg-blue-50 transition-colors shadow-md mt-2"
+                >
+                  <FaInstagram className="w-6 h-6 md:w-7 md:h-7" color="#1877F2" />
+                  Instagram
                 </Link>
               </motion.div>
             </div>

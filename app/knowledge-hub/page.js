@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 const FadeUp = ({ children, delay = 0, className = "" }) => {
@@ -25,35 +25,44 @@ const categories = [
     title: "Climate Science",
     desc: "Understand global warming, carbon cycles, and environmental impact through simplified explanations.",
     icon: "🌍",
+    detail: `Climate science is the study of Earth's climate system — how the atmosphere, oceans, land, and ice interact to produce our climate. Scientists use observations, computer models, and historical records to understand how and why climate is changing. The overwhelming evidence shows that human activities, particularly burning fossil fuels, are driving rapid warming. Key concepts include the greenhouse effect, feedback loops, tipping points, and carbon budgets. Understanding climate science helps us distinguish natural variability from human-caused change, predict future scenarios, and design effective mitigation and adaptation strategies for a warming world.`,
   },
   {
     title: "Sustainable Living",
     desc: "Discover everyday actions that reduce your carbon footprint and build eco‑friendly habits.",
     icon: "🌱",
+    detail: `Sustainable living means making choices that meet our present needs without compromising future generations. It spans diet (eating less meat, reducing food waste), transport (cycling, public transit, EVs), home energy (switching to renewables, insulating homes), shopping (buying less, choosing durable goods), and water use. Small individual actions matter — but so does understanding the systemic changes needed. A sustainable lifestyle also means advocating for better policies and supporting businesses with credible environmental commitments. The goal isn't perfection, but consistent, informed choices that collectively reduce our ecological footprint.`,
   },
   {
     title: "Green Technology",
     desc: "Explore renewable energy, smart innovations, and future solutions for a cleaner planet.",
     icon: "⚡",
+    detail: `Green technology encompasses innovations designed to reduce environmental harm and accelerate the transition to a sustainable economy. This includes solar panels, wind turbines, battery storage, green hydrogen, electric vehicles, smart grids, and carbon capture technologies. Advances in materials science are creating biodegradable alternatives to plastics, while precision agriculture is reducing farming's environmental footprint. Green tech is now one of the fastest-growing investment sectors globally. Understanding these technologies helps individuals, businesses, and policymakers make informed decisions about where to direct resources for maximum climate impact.`,
   },
   {
     title: "Case Studies",
     desc: "Learn from real‑world examples of cities, organizations, and individuals driving change.",
     icon: "📋",
+    detail: `Case studies bring sustainability to life by showing what's actually working in the real world. From Copenhagen's ambition to become the world's first carbon-neutral capital, to Interface Inc.'s Mission Zero commitment eliminating its environmental footprint, to community-led reforestation in Kenya — these examples prove that bold climate action is possible at every scale. Studying these successes (and failures) reveals what conditions enable change: political will, community engagement, funding models, and measurement frameworks. Case studies are among the most powerful learning tools because they show that transformation isn't theoretical — it's already happening.`,
   },
   {
     title: "Guides & Toolkits",
     desc: "Step‑by‑step resources to help you take climate action in your school, home, or workplace.",
     icon: "🧰",
+    detail: `Guides and toolkits translate climate knowledge into actionable steps. Whether you're a student organizing a campus sustainability audit, a business manager setting up a recycling program, or a homeowner planning energy retrofits, structured resources help you move from intention to implementation. Good toolkits include checklists, templates, case examples, measurement frameworks, and links to further support. They lower the barrier to entry by breaking complex challenges into manageable tasks. Our resources are designed to be practical, evidence-based, and adaptable to different contexts — because effective climate action looks different depending on where you are and what you have.`,
   },
   {
     title: "Community Voices",
     desc: "Read stories and insights from people contributing to sustainability movements.",
     icon: "🤝",
+    detail: `Community voices remind us that sustainability is fundamentally a human story. Behind every statistic is a person, family, or community whose life is shaped by environmental change — or who is actively working to build something better. From frontline communities experiencing climate impacts first, to grassroots activists, urban farmers, indigenous knowledge holders, and young climate leaders, diverse perspectives enrich our understanding of what's at stake and what's possible. Amplifying these voices isn't just about inclusion — it's about recognizing that the most innovative and enduring solutions often emerge from those closest to the problem.`,
   },
 ];
 
 const KnowledgeHubPage = () => {
+  const [activeIndex, setActiveIndex] = useState(null);
+  const activeTopic = activeIndex !== null ? categories[activeIndex] : null;
+
   return (
     <div className="bg-[#F4F8F6] min-h-screen overflow-hidden">
 
@@ -129,13 +138,17 @@ const KnowledgeHubPage = () => {
                 </h3>
                 <p className="text-[#355F53] text-sm leading-relaxed">{item.desc}</p>
 
-                {/* Learn more on hover */}
-                <div className="mt-4 text-[#2E7D5B] text-sm font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                {/* Learn more button */}
+                <motion.button
+                  onClick={() => setActiveIndex(index)}
+                  whileTap={{ scale: 0.95 }}
+                  className="mt-4 text-[#2E7D5B] text-sm font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:gap-2"
+                >
                   Learn more
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
-                </div>
+                </motion.button>
               </div>
             </motion.div>
           </FadeUp>
@@ -169,6 +182,108 @@ const KnowledgeHubPage = () => {
           </motion.button>
         </FadeUp>
       </section>
+
+      {/* ── Detail Panel Overlay ── */}
+      <AnimatePresence>
+        {activeTopic && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => setActiveIndex(null)}
+              className="fixed inset-0 bg-[#0F3D2E]/30 backdrop-blur-sm z-40"
+            />
+
+            {/* Panel */}
+            <motion.div
+              key="panel"
+              initial={{ opacity: 0, y: 60, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 40, scale: 0.96 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-xl w-full z-50 px-4 pb-6 md:pb-0 md:px-0"
+            >
+              <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-[#A7D7C5]/60">
+
+                {/* Top accent gradient bar */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-[#2E7D5B] via-[#A7D7C5] to-[#2E7D5B]" />
+
+                {/* Inner content */}
+                <div className="p-8">
+                  {/* Header row */}
+                  <div className="flex items-start justify-between gap-4 mb-5">
+                    <div className="flex items-center gap-3">
+                      <motion.span
+                        initial={{ rotate: -20, scale: 0.6 }}
+                        animate={{ rotate: 0, scale: 1 }}
+                        transition={{ delay: 0.15, type: "spring", stiffness: 260, damping: 18 }}
+                        className="text-4xl leading-none"
+                      >
+                        {activeTopic.icon}
+                      </motion.span>
+                      <motion.h3
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.18, duration: 0.35 }}
+                        className="text-xl font-bold text-[#0F3D2E]"
+                      >
+                        {activeTopic.title}
+                      </motion.h3>
+                    </div>
+
+                    {/* Close button */}
+                    <motion.button
+                      onClick={() => setActiveIndex(null)}
+                      whileHover={{ scale: 1.12, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex-shrink-0 w-8 h-8 rounded-full bg-[#F4F8F6] hover:bg-[#E6F2ED] border border-[#A7D7C5]/50 flex items-center justify-center text-[#2E7D5B] transition-colors"
+                      aria-label="Close"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </motion.button>
+                  </div>
+
+                  {/* Divider */}
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ delay: 0.22, duration: 0.4, ease: "easeOut" }}
+                    className="h-px bg-gradient-to-r from-[#A7D7C5] to-transparent mb-5 origin-left"
+                  />
+
+                  {/* Detail paragraph */}
+                  <motion.p
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.28, duration: 0.45, ease: "easeOut" }}
+                    className="text-[#355F53] text-[15px] leading-relaxed"
+                  >
+                    {activeTopic.detail}
+                  </motion.p>
+
+                  {/* Footer tag */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.42 }}
+                    className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#2E7D5B] bg-[#2E7D5B]/10 px-3 py-1 rounded-full"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D5B] animate-pulse" />
+                    Sustainability Insight
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
     </div>
   );

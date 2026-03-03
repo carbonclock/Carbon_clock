@@ -141,14 +141,14 @@ const AboutPage = () => {
             <p className="text-[#355F53] leading-relaxed mb-4">
               Carbon Clock was born from a simple realization: while climate change is
               widely discussed, it is rarely understood in practical terms. Technical
-              language such as Scope emissions, ESG metrics, carbon footprints, and
+              language such as Scope emissions, ESG metrics, carbon footprints,and
               lifecycle assessments often remains confined to academic or industrial
               spaces, leaving the general public disconnected from the very knowledge
               needed to drive change.
             </p>
             <p className="text-[#355F53] leading-relaxed">
               Recognizing this gap, Carbon Clock was created as a platform to translate
-              complexity into clarity — transforming dense sustainability concepts into
+              complexity into clarity transforming dense sustainability concepts into
               accessible learning and meaningful action. Our journey is rooted in the
               belief that awareness must lead to accountability, and accountability must
               lead to action.
@@ -169,14 +169,14 @@ const AboutPage = () => {
               <SectionHeading>Our Mission</SectionHeading>
               <p className="text-[#355F53] leading-relaxed mb-4">
                 Our mission is to make sustainability understandable, actionable, and
-                measurable for everyone — not just experts. We aim to simplify complex
+                measurable for everyone  not just experts. We aim to simplify complex
                 environmental frameworks such as carbon accounting, lifecycle thinking,
                 and responsible resource use so that students, professionals, and
                 communities can actively participate in climate solutions.
               </p>
               <p className="text-[#355F53] leading-relaxed">
                 We believe that informed citizens create resilient systems, and that
-                small, conscious actions — when multiplied across society — can lead to
+                small, conscious actions when multiplied across society can lead to
                 meaningful environmental transformation.
               </p>
             </div>
@@ -191,7 +191,7 @@ const AboutPage = () => {
             >
               <SectionHeading>Our Vision</SectionHeading>
               <p className="text-[#355F53] leading-relaxed mb-4">
-                Our vision is to build a carbon-literate generation capable of
+                Our vision is to build a carbon literate generation capable of
                 understanding how their choices influence the planet. We envision a
                 future where sustainability is embedded into education, professional
                 practice, and daily life.
@@ -200,8 +200,7 @@ const AboutPage = () => {
                 Carbon Clock strives to cultivate awareness that goes beyond headlines
                 and statistics, nurturing critical thinking about consumption, energy
                 use, waste, and long-term ecological balance. A sustainable future is
-                not achieved by policy alone, but by people who understand impact —
-                and act on it consistently.
+                not achieved by policy alone, but by people who understand impact and act on it consistently.
               </p>
             </motion.div>
           </FadeUp>

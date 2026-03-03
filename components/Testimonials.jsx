@@ -152,13 +152,6 @@ export default function Testimonials() {
                 What Our{" "}
                 <span className="relative inline-block">
                   <span className="relative z-10 text-[#2E7D5B]">Clients Say</span>
-                  <motion.span
-                    initial={{ scaleX: 0 }}
-                    whileInView={{ scaleX: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 1, duration: 1, ease: "easeOut" }}
-                    className="absolute bottom-1 left-0 w-full h-0.75 bg-[#2E7D5B]/40 origin-left rounded-full"
-                  />
                 </span>
               </h2>
             </FadeUp>

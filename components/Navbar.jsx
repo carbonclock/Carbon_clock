@@ -69,8 +69,6 @@ export default function Navbar() {
                 >
                   {/* Hover background pill */}
                   <span className="absolute inset-0 rounded-md bg-green-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                  {/* Animated underline */}
-                  <span className="absolute bottom-1 left-3 right-3 h-0.5 bg-green-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left rounded-full" />
                   <span className="relative z-10 group-hover:text-green-700 transition-colors duration-200">
                     {link.label}
                   </span>

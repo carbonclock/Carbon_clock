@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { motion, useMotionValue } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 /* ── Floating orb decoration ── */
 const Orb = ({ className, delay = 0, duration = 6 }) => (
@@ -88,12 +89,6 @@ export default function Hero() {
             Is{" "}
             <span className="relative inline-block">
               <span className="relative z-10 text-[#2E7D5B]">Ticking.</span>
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
-                className="absolute bottom-1 left-0 w-full h-0.75 bg-[#2E7D5B]/40 origin-left rounded-full"
-              />
             </span>
             <br />
             Action Cannot Wait.
@@ -126,13 +121,16 @@ export default function Hero() {
 
           {/* CTAs — hidden on mobile, visible on sm and above */}
           <motion.div variants={fadeUp} className="mt-6 lg:mt-8 hidden sm:flex flex-row flex-wrap gap-3 lg:gap-4 justify-center">
-            <motion.button
-              whileHover={{ scale: 1.04, boxShadow: "0 8px 28px rgba(15,61,46,0.30)" }}
-              whileTap={{ scale: 0.97 }}
-              className="px-6 py-3 lg:px-8 lg:py-4 bg-[#0F3D2E] text-white rounded-lg text-sm lg:text-[15px] font-semibold tracking-wide transition-colors hover:bg-[#2E7D5B]"
-            >
-              Explore Carbon Clock
-            </motion.button>
+            <Link href="/resources">
+                <motion.button
+                  whileHover={{ scale: 1.04, boxShadow: "0 8px 28px rgba(15,61,46,0.30)" }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-6 py-3 lg:px-8 lg:py-4 bg-[#0F3D2E] text-white rounded-lg text-sm lg:text-[15px] font-semibold tracking-wide transition-colors hover:bg-[#2E7D5B] flex items-center justify-center"
+                  type="button"
+                >
+                  Explore Carbon Clock
+                </motion.button>
+            </Link>
 
             <motion.button
               whileHover={{ scale: 1.04, backgroundColor: "#0F3D2E", color: "#fff" }}
