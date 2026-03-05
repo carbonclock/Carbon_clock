@@ -22,41 +22,125 @@ const FadeUp = ({ children, delay = 0, className = "" }) => {
 
 const categories = [
   {
-    title: "Climate Science",
-    desc: "Understand global warming, carbon cycles, and environmental impact through simplified explanations.",
-    icon: "🌍",
-    detail: `Climate science is the study of Earth's climate system — how the atmosphere, oceans, land, and ice interact to produce our climate. Scientists use observations, computer models, and historical records to understand how and why climate is changing. The overwhelming evidence shows that human activities, particularly burning fossil fuels, are driving rapid warming. Key concepts include the greenhouse effect, feedback loops, tipping points, and carbon budgets. Understanding climate science helps us distinguish natural variability from human-caused change, predict future scenarios, and design effective mitigation and adaptation strategies for a warming world.`,
-  },
-  {
-    title: "Sustainable Living",
-    desc: "Discover everyday actions that reduce your carbon footprint and build eco‑friendly habits.",
-    icon: "🌱",
-    detail: `Sustainable living means making choices that meet our present needs without compromising future generations. It spans diet (eating less meat, reducing food waste), transport (cycling, public transit, EVs), home energy (switching to renewables, insulating homes), shopping (buying less, choosing durable goods), and water use. Small individual actions matter — but so does understanding the systemic changes needed. A sustainable lifestyle also means advocating for better policies and supporting businesses with credible environmental commitments. The goal isn't perfection, but consistent, informed choices that collectively reduce our ecological footprint.`,
-  },
-  {
-    title: "Green Technology",
-    desc: "Explore renewable energy, smart innovations, and future solutions for a cleaner planet.",
-    icon: "⚡",
-    detail: `Green technology encompasses innovations designed to reduce environmental harm and accelerate the transition to a sustainable economy. This includes solar panels, wind turbines, battery storage, green hydrogen, electric vehicles, smart grids, and carbon capture technologies. Advances in materials science are creating biodegradable alternatives to plastics, while precision agriculture is reducing farming's environmental footprint. Green tech is now one of the fastest-growing investment sectors globally. Understanding these technologies helps individuals, businesses, and policymakers make informed decisions about where to direct resources for maximum climate impact.`,
-  },
-  {
-    title: "Case Studies",
-    desc: "Learn from real‑world examples of cities, organizations, and individuals driving change.",
-    icon: "📋",
-    detail: `Case studies bring sustainability to life by showing what's actually working in the real world. From Copenhagen's ambition to become the world's first carbon-neutral capital, to Interface Inc.'s Mission Zero commitment eliminating its environmental footprint, to community-led reforestation in Kenya — these examples prove that bold climate action is possible at every scale. Studying these successes (and failures) reveals what conditions enable change: political will, community engagement, funding models, and measurement frameworks. Case studies are among the most powerful learning tools because they show that transformation isn't theoretical — it's already happening.`,
-  },
-  {
-    title: "Guides & Toolkits",
-    desc: "Step‑by‑step resources to help you take climate action in your school, home, or workplace.",
-    icon: "🧰",
-    detail: `Guides and toolkits translate climate knowledge into actionable steps. Whether you're a student organizing a campus sustainability audit, a business manager setting up a recycling program, or a homeowner planning energy retrofits, structured resources help you move from intention to implementation. Good toolkits include checklists, templates, case examples, measurement frameworks, and links to further support. They lower the barrier to entry by breaking complex challenges into manageable tasks. Our resources are designed to be practical, evidence-based, and adaptable to different contexts — because effective climate action looks different depending on where you are and what you have.`,
-  },
-  {
-    title: "Community Voices",
-    desc: "Read stories and insights from people contributing to sustainability movements.",
-    icon: "🤝",
-    detail: `Community voices remind us that sustainability is fundamentally a human story. Behind every statistic is a person, family, or community whose life is shaped by environmental change — or who is actively working to build something better. From frontline communities experiencing climate impacts first, to grassroots activists, urban farmers, indigenous knowledge holders, and young climate leaders, diverse perspectives enrich our understanding of what's at stake and what's possible. Amplifying these voices isn't just about inclusion — it's about recognizing that the most innovative and enduring solutions often emerge from those closest to the problem.`,
-  },
+  title: "Life Cycle Assessment (LCA)",
+  desc: "A method to evaluate environmental impacts of a product across its life cycle.",
+  icon: "🔄",
+  color: "from-[#E8F5E9] to-[#F6FBF7]",
+  border: "border-[#A5D6A7]",
+  detail: `Life Cycle Assessment (LCA) is a scientific methodology used to evaluate the environmental impacts associated with all stages of a product’s life. This includes raw material extraction, manufacturing, distribution, use, and final disposal or recycling. LCA helps organizations understand the environmental footprint of products and identify opportunities to reduce resource consumption, emissions, and waste.`
+},
+{
+  title: "Cradle-to-Grave",
+  desc: "Life cycle assessment covering all stages from raw materials to disposal.",
+  icon: "⚙️",
+  color: "from-[#E3F2FD] to-[#F5FAFF]",
+  border: "border-[#90CAF9]",
+  detail: `Cradle-to-Grave is an approach used in life cycle assessment that evaluates environmental impacts from the extraction of raw materials (the cradle) to the product’s end-of-life disposal (the grave). It considers manufacturing, transportation, usage, and waste management stages to understand the full environmental footprint of a product or system.`
+},
+{
+  title: "Cradle-to-Gate",
+  desc: "Assessment from raw material extraction to the factory gate.",
+  icon: "🏭",
+  color: "from-[#E1F5FE] to-[#F4FAFF]",
+  border: "border-[#81D4FA]",
+  detail: `Cradle-to-Gate is a type of life cycle assessment that evaluates environmental impacts from the extraction of raw materials up to the point where the product leaves the manufacturing facility. It excludes distribution, usage, and disposal phases, focusing mainly on production-related impacts.`
+},
+{
+  title: "Net Zero",
+  desc: "Balancing greenhouse gas emissions with removal from the atmosphere.",
+  icon: "🌍",
+  color: "from-[#F1F8E9] to-[#F7FDF3]",
+  border: "border-[#AED581]",
+  detail: `Net Zero refers to achieving a balance between the greenhouse gases emitted into the atmosphere and those removed from it. Organizations and countries aim to reduce emissions as much as possible and offset remaining emissions through carbon removal methods such as reforestation or carbon capture technologies.`
+},
+{
+  title: "Carbon Neutrality",
+  desc: "Offsetting emitted carbon through verified environmental projects.",
+  icon: "⚖️",
+  color: "from-[#E0F7FA] to-[#F2FCFD]",
+  border: "border-[#80DEEA]",
+  detail: `Carbon neutrality is achieved when the amount of carbon dioxide emitted is balanced by an equivalent amount removed or offset. This is typically done by supporting certified carbon offset projects such as renewable energy initiatives, forest conservation, or methane capture programs.`
+},
+{
+  title: "Carbon Offsetting",
+  desc: "Investing in environmental projects to compensate emissions.",
+  icon: "🌳",
+  color: "from-[#E8F5E9] to-[#F5FBF6]",
+  border: "border-[#A5D6A7]",
+  detail: `Carbon offsetting involves compensating for greenhouse gas emissions by investing in environmental projects that reduce or remove emissions elsewhere. Examples include renewable energy projects, reforestation, and methane capture initiatives that help balance the overall carbon footprint.`
+},
+{
+  title: "Emission Factor",
+  desc: "Coefficient used to estimate emissions from activity data.",
+  icon: "📊",
+  color: "from-[#F3E5F5] to-[#FAF5FB]",
+  border: "border-[#CE93D8]",
+  detail: `An emission factor is a coefficient that quantifies the emissions released per unit of activity. It is commonly used in environmental calculations to estimate greenhouse gas emissions based on measurable data such as fuel consumption, electricity usage, or industrial processes.`
+},
+{
+  title: "Activity Data",
+  desc: "Quantitative measure of activities that generate emissions.",
+  icon: "📈",
+  color: "from-[#FFF3E0] to-[#FFF8F3]",
+  border: "border-[#FFB74D]",
+  detail: `Activity data refers to measurable information about activities that produce greenhouse gas emissions. Examples include the amount of fuel consumed, electricity used, or distance traveled by vehicles. This data is combined with emission factors to calculate total emissions.`
+},
+{
+  title: "ESG (Environmental, Social, Governance)",
+  desc: "Framework for evaluating sustainability and ethical impact of companies.",
+  icon: "🏢",
+  color: "from-[#EDE7F6] to-[#F7F4FD]",
+  border: "border-[#B39DDB]",
+  detail: `ESG stands for Environmental, Social, and Governance, a framework used to assess the sustainability and ethical impact of companies. It evaluates how organizations manage environmental responsibilities, social relationships, and governance practices. ESG metrics are widely used by investors to evaluate long-term corporate sustainability performance.`
+},
+{
+  title: "Environmental Product Declaration (EPD)",
+  desc: "Verified document reporting environmental data of a product.",
+  icon: "📄",
+  color: "from-[#E1F5FE] to-[#F4FAFF]",
+  border: "border-[#81D4FA]",
+  detail: `An Environmental Product Declaration (EPD) is a standardized and independently verified document that provides transparent information about the environmental impact of a product throughout its life cycle. EPDs are based on life cycle assessments and help organizations communicate sustainability performance to stakeholders.`
+},
+{
+  title: "Circular Economy",
+  desc: "Economic model focused on reuse, recycling, and waste reduction.",
+  icon: "♻️",
+  color: "from-[#E8F5E9] to-[#F6FBF7]",
+  border: "border-[#A5D6A7]",
+  detail: `A circular economy is an economic system designed to eliminate waste and promote the continual use of resources. It emphasizes recycling, reusing materials, repairing products, and designing goods for longer life cycles to minimize environmental impact.`
+},
+{
+  title: "Linear Economy",
+  desc: "Traditional model of take, make, and dispose production.",
+  icon: "➡️",
+  color: "from-[#FFFDE7] to-[#FFFDF4]",
+  border: "border-[#FFF59D]",
+  detail: `A linear economy follows the traditional production model of extracting raw materials, manufacturing products, using them, and eventually disposing of them as waste. This approach often leads to resource depletion and environmental degradation.`
+},
+{
+  title: "Renewable Energy",
+  desc: "Energy from sources that naturally replenish such as solar and wind.",
+  icon: "☀️",
+  color: "from-[#FFF9C4] to-[#FFFDF3]",
+  border: "border-[#FFF176]",
+  detail: `Renewable energy comes from natural sources that are continuously replenished, such as solar, wind, hydro, and geothermal energy. These sources produce little or no greenhouse gas emissions and are essential for reducing dependence on fossil fuels.`
+},
+{
+  title: "Non-Renewable Energy",
+  desc: "Energy from finite sources like coal, oil, and gas.",
+  icon: "🛢️",
+  color: "from-[#ECEFF1] to-[#F6F8F9]",
+  border: "border-[#B0BEC5]",
+  detail: `Non-renewable energy comes from finite natural resources such as coal, oil, and natural gas. These resources take millions of years to form and cannot be replenished quickly. Their use is a major contributor to greenhouse gas emissions.`
+},
+{
+  title: "Decarbonization",
+  desc: "Reducing carbon emissions in energy, transport, and industry.",
+  icon: "🌱",
+  color: "from-[#E8F5E9] to-[#F4FBF6]",
+  border: "border-[#A5D6A7]",
+  detail: `Decarbonization refers to the process of reducing carbon dioxide emissions across sectors such as energy production, transportation, and industry. This is achieved through renewable energy adoption, energy efficiency improvements, and sustainable technologies.`
+}
 ];
 
 const KnowledgeHubPage = () => {
@@ -168,6 +252,7 @@ const KnowledgeHubPage = () => {
             whileTap={{ scale: 0.97 }}
             transition={{ duration: 0.15 }}
             className="px-8 py-3.5 bg-[#0F3D2E] text-white rounded-xl font-semibold text-[15px] hover:bg-[#2E7D5B] transition-colors inline-flex items-center gap-2"
+            onClick={() => window.location.href = '/certifications'}
           >
             Start Learning
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

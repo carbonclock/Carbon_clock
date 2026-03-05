@@ -12,7 +12,7 @@ const navLinks = [
   { label: "Resources", href: "/resources" },
   // { label: "Our Services", href: "/Services" },
   { label: "Founder", href: "/founder" },
-  { label: "News & Events", href: "/news" },
+  { label: "Blog", href: "/blog" },
 ];
 
 export default function Navbar() {

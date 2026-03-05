@@ -5,54 +5,127 @@ import { motion, useInView, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 const topics = [
+  // {
+  //   title: "Climate Change",
+  //   desc: "Long-term shifts in global temperature driven by greenhouse gas emissions.",
+  //   icon: "🌡️",
+  //   color: "from-[#E6F2ED] to-[#F4F8F6]",
+  //   border: "border-[#A7D7C5]",
+  //   detail: `Climate change refers to long-term shifts in global temperatures and weather patterns. While some changes are natural, since the 1800s, human activities — especially burning fossil fuels like coal, oil, and gas — have been the main driver. These activities release greenhouse gases such as CO₂ and methane, which trap heat in the atmosphere and cause global warming. The consequences include rising sea levels, more frequent extreme weather events, loss of biodiversity, and disruption to food and water systems. Addressing climate change requires urgent action across energy, transport, agriculture, and industry to reduce emissions and build resilience.`,
+  // },
+  // {
+  //   title: "Carbon Footprint",
+  //   desc: "Total emissions caused directly or indirectly by activities or products.",
+  //   icon: "👣",
+  //   color: "from-[#E6F2ED] to-[#F4F8F6]",
+  //   border: "border-[#A7D7C5]",
+  //   detail: `A carbon footprint measures the total greenhouse gas emissions — expressed as CO₂ equivalent — caused directly or indirectly by a person, organization, event, or product. It covers everything from the energy you use at home to the food you eat and the flights you take. Understanding your carbon footprint is the first step toward reducing it. Strategies include switching to renewable energy, eating less meat, reducing air travel, and choosing sustainable products. Businesses calculate carbon footprints to identify emission hotspots and set science-based reduction targets aligned with global climate goals.`,
+  // },
+  // {
+  //   title: "Scope 1, 2 & 3",
+  //   desc: "Classification of emissions across operations, energy use, and value chains.",
+  //   icon: "📊",
+  //   color: "from-[#E6F2ED] to-[#F4F8F6]",
+  //   border: "border-[#A7D7C5]",
+  //   detail: `Scope 1 emissions are direct greenhouse gas emissions from sources owned or controlled by a company — such as company vehicles or on-site combustion. Scope 2 covers indirect emissions from purchased electricity, heat, or steam. Scope 3 is the broadest category, encompassing all other indirect emissions across a company's value chain — from raw material extraction and supplier activities to product use and end-of-life disposal. For most companies, Scope 3 represents the largest share of their footprint. Reporting across all three scopes is essential for a complete and credible emissions picture and is increasingly required by global sustainability frameworks.`,
+  // },
+  // {
+  //   title: "Life Cycle Assessment",
+  //   desc: "Measuring environmental impact across a product's full lifecycle.",
+  //   icon: "♻️",
+  //   color: "from-[#E6F2ED] to-[#F4F8F6]",
+  //   border: "border-[#A7D7C5]",
+  //   detail: `Life Cycle Assessment (LCA) is a systematic method for evaluating the environmental impact of a product, process, or service throughout its entire life — from raw material extraction ("cradle") to disposal or recycling ("grave"). LCA examines impacts such as energy use, water consumption, greenhouse gas emissions, land use, and pollution across every phase. It helps businesses make informed decisions about product design, material sourcing, and end-of-life strategies. LCA is guided by international standards (ISO 14040/14044) and is increasingly used to substantiate environmental claims, drive eco-design innovation, and support sustainability reporting.`,
+  // },
+  // {
+  //   title: "Net Zero",
+  //   desc: "Balancing emitted and removed greenhouse gases to stabilize climate impact.",
+  //   icon: "⚖️",
+  //   color: "from-[#E6F2ED] to-[#F4F8F6]",
+  //   border: "border-[#A7D7C5]",
+  //   detail: `Net zero means achieving a balance between the greenhouse gases emitted into and removed from the atmosphere. To reach net zero, emissions must be reduced as close to zero as possible, with remaining unavoidable emissions offset by carbon removal — through natural solutions like reforestation or technological approaches like carbon capture and storage. The Paris Agreement calls for global net zero CO₂ emissions by mid-century to limit warming to 1.5°C. For organizations, credible net zero commitments require deep emissions cuts (at least 90%), transparent reporting, and science-based targets — not reliance on cheap offsets as a substitute for real reduction.`,
+  // },
+  // {
+  //   title: "Renewable Energy",
+  //   desc: "Energy from natural replenishing sources like solar and wind.",
+  //   icon: "☀️",
+  //   color: "from-[#E6F2ED] to-[#F4F8F6]",
+  //   border: "border-[#A7D7C5]",
+  //   detail: `Renewable energy comes from natural sources that are constantly replenished — including solar, wind, hydro, geothermal, and biomass. Unlike fossil fuels, renewables produce little to no greenhouse gas emissions during operation, making them central to decarbonizing the global energy system. Solar and wind power are now the cheapest sources of electricity in history and are being deployed at record scale. For businesses, transitioning to renewable energy is one of the most impactful steps toward reducing Scope 2 emissions. Options include on-site generation, power purchase agreements (PPAs), and renewable energy certificates (RECs).`,
+  // },
+
   {
-    title: "Climate Change",
-    desc: "Long-term shifts in global temperature driven by greenhouse gas emissions.",
-    icon: "🌡️",
-    color: "from-[#E6F2ED] to-[#F4F8F6]",
-    border: "border-[#A7D7C5]",
-    detail: `Climate change refers to long-term shifts in global temperatures and weather patterns. While some changes are natural, since the 1800s, human activities — especially burning fossil fuels like coal, oil, and gas — have been the main driver. These activities release greenhouse gases such as CO₂ and methane, which trap heat in the atmosphere and cause global warming. The consequences include rising sea levels, more frequent extreme weather events, loss of biodiversity, and disruption to food and water systems. Addressing climate change requires urgent action across energy, transport, agriculture, and industry to reduce emissions and build resilience.`,
-  },
-  {
-    title: "Carbon Footprint",
-    desc: "Total emissions caused directly or indirectly by activities or products.",
-    icon: "👣",
-    color: "from-[#E6F2ED] to-[#F4F8F6]",
-    border: "border-[#A7D7C5]",
-    detail: `A carbon footprint measures the total greenhouse gas emissions — expressed as CO₂ equivalent — caused directly or indirectly by a person, organization, event, or product. It covers everything from the energy you use at home to the food you eat and the flights you take. Understanding your carbon footprint is the first step toward reducing it. Strategies include switching to renewable energy, eating less meat, reducing air travel, and choosing sustainable products. Businesses calculate carbon footprints to identify emission hotspots and set science-based reduction targets aligned with global climate goals.`,
-  },
-  {
-    title: "Scope 1, 2 & 3",
-    desc: "Classification of emissions across operations, energy use, and value chains.",
-    icon: "📊",
-    color: "from-[#E6F2ED] to-[#F4F8F6]",
-    border: "border-[#A7D7C5]",
-    detail: `Scope 1 emissions are direct greenhouse gas emissions from sources owned or controlled by a company — such as company vehicles or on-site combustion. Scope 2 covers indirect emissions from purchased electricity, heat, or steam. Scope 3 is the broadest category, encompassing all other indirect emissions across a company's value chain — from raw material extraction and supplier activities to product use and end-of-life disposal. For most companies, Scope 3 represents the largest share of their footprint. Reporting across all three scopes is essential for a complete and credible emissions picture and is increasingly required by global sustainability frameworks.`,
-  },
-  {
-    title: "Life Cycle Assessment",
-    desc: "Measuring environmental impact across a product's full lifecycle.",
-    icon: "♻️",
-    color: "from-[#E6F2ED] to-[#F4F8F6]",
-    border: "border-[#A7D7C5]",
-    detail: `Life Cycle Assessment (LCA) is a systematic method for evaluating the environmental impact of a product, process, or service throughout its entire life — from raw material extraction ("cradle") to disposal or recycling ("grave"). LCA examines impacts such as energy use, water consumption, greenhouse gas emissions, land use, and pollution across every phase. It helps businesses make informed decisions about product design, material sourcing, and end-of-life strategies. LCA is guided by international standards (ISO 14040/14044) and is increasingly used to substantiate environmental claims, drive eco-design innovation, and support sustainability reporting.`,
-  },
-  {
-    title: "Net Zero",
-    desc: "Balancing emitted and removed greenhouse gases to stabilize climate impact.",
-    icon: "⚖️",
-    color: "from-[#E6F2ED] to-[#F4F8F6]",
-    border: "border-[#A7D7C5]",
-    detail: `Net zero means achieving a balance between the greenhouse gases emitted into and removed from the atmosphere. To reach net zero, emissions must be reduced as close to zero as possible, with remaining unavoidable emissions offset by carbon removal — through natural solutions like reforestation or technological approaches like carbon capture and storage. The Paris Agreement calls for global net zero CO₂ emissions by mid-century to limit warming to 1.5°C. For organizations, credible net zero commitments require deep emissions cuts (at least 90%), transparent reporting, and science-based targets — not reliance on cheap offsets as a substitute for real reduction.`,
-  },
-  {
-    title: "Renewable Energy",
-    desc: "Energy from natural replenishing sources like solar and wind.",
-    icon: "☀️",
-    color: "from-[#E6F2ED] to-[#F4F8F6]",
-    border: "border-[#A7D7C5]",
-    detail: `Renewable energy comes from natural sources that are constantly replenished — including solar, wind, hydro, geothermal, and biomass. Unlike fossil fuels, renewables produce little to no greenhouse gas emissions during operation, making them central to decarbonizing the global energy system. Solar and wind power are now the cheapest sources of electricity in history and are being deployed at record scale. For businesses, transitioning to renewable energy is one of the most impactful steps toward reducing Scope 2 emissions. Options include on-site generation, power purchase agreements (PPAs), and renewable energy certificates (RECs).`,
-  },
+  title: "Sustainability",
+  desc: "Meeting present needs without harming the ability of future generations to meet theirs.",
+  icon: "🌱",
+  color: "from-[#E8F5E9] to-[#F4FBF6]",
+  border: "border-[#A5D6A7]",
+  detail: `Sustainability means meeting present needs without compromising the ability of future generations to meet their own needs. It focuses on balancing environmental protection, economic development, and social well-being. Sustainable practices encourage responsible use of natural resources, reduction of waste and pollution, and promotion of renewable energy. By adopting sustainable approaches in industries, communities, and daily life, societies can ensure long-term ecological balance and improved quality of life.`
+},
+{
+  title: "Sustainable Development",
+  desc: "Economic growth that protects the environment and ensures social equity.",
+  icon: "🌍",
+  color: "from-[#E3F2FD] to-[#F5FAFF]",
+  border: "border-[#90CAF9]",
+  detail: `Sustainable development refers to development that meets present needs while ensuring that future generations can also meet their needs. It promotes economic progress while maintaining environmental protection and social equity. The concept integrates responsible resource management, reduction of environmental damage, and fair opportunities for all communities. Governments, businesses, and individuals play a role in implementing sustainable policies, green technologies, and ethical practices to achieve long-term global prosperity.`
+},
+{
+  title: "Climate Change",
+  desc: "Long-term shifts in global temperatures and weather patterns caused by human activity.",
+  icon: "🌡️",
+  color: "from-[#E6F2ED] to-[#F4F8F6]",
+  border: "border-[#A7D7C5]",
+  detail: `Climate change refers to long-term shifts in global temperatures and weather patterns. While some changes occur naturally, human activities such as burning fossil fuels, deforestation, and industrial processes have significantly accelerated these changes. These activities release greenhouse gases that trap heat in the atmosphere, leading to global warming. The impacts include rising sea levels, extreme weather events, loss of biodiversity, and disruptions to ecosystems and agriculture. Addressing climate change requires global cooperation, emission reduction, and sustainable development strategies.`
+},
+{
+  title: "Global Warming",
+  desc: "The rise in Earth’s average temperature due to increased greenhouse gases.",
+  icon: "🔥",
+  color: "from-[#FFF3E0] to-[#FFF8F2]",
+  border: "border-[#FFB74D]",
+  detail: `Global warming refers to the gradual increase in the Earth’s average surface temperature due to the accumulation of greenhouse gases in the atmosphere. Human activities such as burning fossil fuels, industrial production, and deforestation increase the concentration of gases like carbon dioxide and methane. These gases trap heat from the sun, causing the planet to warm over time. The effects include melting glaciers, rising sea levels, and more intense weather patterns. Reducing emissions and adopting renewable energy sources are key solutions to limit global warming.`
+},
+{
+  title: "Greenhouse Gases (GHGs)",
+  desc: "Heat-trapping gases in the atmosphere such as CO₂ and methane.",
+  icon: "☁️",
+  color: "from-[#EDE7F6] to-[#F7F4FD]",
+  border: "border-[#B39DDB]",
+  detail: `Greenhouse gases are gases in the Earth’s atmosphere that trap heat and contribute to the greenhouse effect. Major greenhouse gases include carbon dioxide (CO₂), methane (CH₄), nitrous oxide (N₂O), and industrial gases such as HFCs, PFCs, and SF₆. While these gases naturally help maintain Earth's temperature, excessive emissions from human activities increase heat retention in the atmosphere, contributing to climate change and global warming. Managing greenhouse gas emissions is essential for mitigating environmental impacts and maintaining climate stability.`
+},
+{
+  title: "Carbon Footprint",
+  desc: "The total greenhouse gas emissions caused by an individual or activity.",
+  icon: "👣",
+  color: "from-[#E0F7FA] to-[#F2FCFD]",
+  border: "border-[#80DEEA]",
+  detail: `A carbon footprint represents the total amount of greenhouse gases emitted directly or indirectly by an individual, organization, product, or activity. It is typically measured in carbon dioxide equivalents (CO₂e). Everyday actions such as driving vehicles, consuming electricity, producing goods, and transportation contribute to carbon emissions. Reducing carbon footprints involves using renewable energy, improving energy efficiency, reducing waste, and adopting sustainable consumption habits. Tracking carbon footprints helps individuals and organizations understand their environmental impact and take steps toward sustainability.`
+},
+{
+  title: "Corporate Carbon Footprint (CCF)",
+  desc: "Total emissions produced by an organization's operations and activities.",
+  icon: "🏭",
+  color: "from-[#F1F8E9] to-[#F8FDF4]",
+  border: "border-[#AED581]",
+  detail: `Corporate Carbon Footprint refers to the total greenhouse gas emissions generated by a company’s operations and activities. These emissions are typically categorized into three scopes. Scope 1 includes direct emissions from company-owned sources such as factories and vehicles. Scope 2 covers indirect emissions from purchased electricity or energy. Scope 3 includes all other indirect emissions such as supply chains, transportation, and product usage. Measuring and reducing corporate carbon footprints is important for companies aiming to achieve sustainability goals and comply with environmental regulations.`
+},
+{
+     title: "Scope 1, 2 & 3",
+     desc: "Classification of emissions across operations, energy use, and value chains.",
+      icon: "📊",
+     color: "from-[#E6F2ED] to-[#F4F8F6]",
+     border: "border-[#A7D7C5]",
+     detail: `Scope 1 emissions are direct greenhouse gas emissions from sources owned or controlled by a company — such as company vehicles or on-site combustion. Scope 2 covers indirect emissions from purchased electricity, heat, or steam. Scope 3 is the broadest category, encompassing all other indirect emissions across a company's value chain — from raw material extraction and supplier activities to product use and end-of-life disposal. For most companies, Scope 3 represents the largest share of their footprint. Reporting across all three scopes is essential for a complete and credible emissions picture and is increasingly required by global sustainability frameworks.`,
+},
+{
+  title: "Product Carbon Footprint (PCF)",
+  desc: "Total emissions produced throughout a product’s life cycle.",
+  icon: "📦",
+  color: "from-[#FFFDE7] to-[#FFFDF4]",
+  border: "border-[#FFF59D]",
+  detail: `Product Carbon Footprint refers to the total greenhouse gas emissions associated with a product throughout its entire life cycle. This includes emissions from raw material extraction, manufacturing, packaging, transportation, usage, and final disposal or recycling. Measuring the carbon footprint of a product helps organizations understand environmental impacts at each stage of production. Companies can reduce product emissions by improving production efficiency, using sustainable materials, optimizing transportation, and designing eco-friendly products.`
+}
 ];
 
 /* ── Fade up on scroll ── */
