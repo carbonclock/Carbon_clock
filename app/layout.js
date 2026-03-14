@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import NavbarWrapper from "@/components/NavbarWrapper";
 
 export const metadata = {
   title: "Carbon Clock",
@@ -16,9 +17,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Navbar />
+        <NavbarWrapper>
+          <Navbar />
+        </NavbarWrapper>
         <main>{children}</main>
-        <Footer />
+        <NavbarWrapper>
+          <Footer />
+        </NavbarWrapper>
       </body>
     </html>
   );

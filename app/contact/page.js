@@ -252,7 +252,8 @@ export default function ContactPage() {
               className="w-full h-105 rounded-2xl overflow-hidden shadow-lg border border-[#A7D7C5]/40"
             >
               <iframe
-                src="https://maps.google.com/maps?q=26.7283191,83.4369374&z=16&output=embed"
+                // src="https://maps.google.com/maps?q=26.7283191,83.4369374&z=16&output=embed"
+                src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d7163.822135852192!2d85.91399899999995!3d26.1344425!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1773145080264!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

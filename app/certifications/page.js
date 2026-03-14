@@ -3,6 +3,9 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { BookOpen, Award, GraduationCap, CheckCircle, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import LoginModal from "@/components/LoginModal";
+import { useState } from "react";
 
 /* ── Fade up on scroll ── */
 const FadeUp = ({ children, delay = 0, className = "" }) => {
@@ -108,6 +111,20 @@ const workflowSteps = [
 ];
 
 export default function CertificationPage() {
+
+   const router = useRouter();
+   const [showLogin,setShowLogin] = useState(false);
+
+  const handleRegisterClick = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/login");
+    } else {
+      router.push("/welcome");
+    }
+  };
+
   return (
     <main className="bg-[#F4F8F6] text-[#0F3D2E] overflow-hidden">
 
@@ -125,13 +142,13 @@ export default function CertificationPage() {
         {/* Green tint overlay */}
         <div className="absolute inset-0 bg-[#0F3D2E]/60" />
         {/* Bottom fade out */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#F4F8F6]/40" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-[#F4F8F6]/40" />
 
         {/* Animated shimmer bands */}
         <motion.div
           animate={{ x: ["-100%", "200%"] }}
           transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 5 }}
-          className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 pointer-events-none"
+          className="absolute inset-y-0 w-1/3 bg-linear-to-r from-transparent via-white/5 to-transparent skew-x-12 pointer-events-none"
         />
 
         {/* Glowing pulsing ring — center */}
@@ -200,9 +217,9 @@ export default function CertificationPage() {
 
           <FadeUp delay={0.3}>
             <div className="mt-8 flex items-center justify-center gap-3">
-              <span className="h-[1px] w-16 bg-white/40 rounded-full" />
+              <span className="h-px w-16 bg-white/40 rounded-full" />
               <span className="w-2 h-2 rounded-full bg-white" />
-              <span className="h-[1px] w-16 bg-white/40 rounded-full" />
+              <span className="h-px w-16 bg-white/40 rounded-full" />
             </div>
           </FadeUp>
         </div>
@@ -224,7 +241,7 @@ export default function CertificationPage() {
                 className="bg-white rounded-2xl p-6 text-center border border-[#A7D7C5]/50 shadow-sm group h-full flex flex-col items-center justify-start"
               >
                 <div className="flex justify-center mb-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[#E6F2ED] flex items-center justify-center text-[#2E7D5B] group-hover:bg-[#2E7D5B] group-hover:text-white transition-colors duration-200 flex-shrink-0">
+                  <div className="w-14 h-14 rounded-2xl bg-[#E6F2ED] flex items-center justify-center text-[#2E7D5B] group-hover:bg-[#2E7D5B] group-hover:text-white transition-colors duration-200 shrink-0">
                     {f.icon}
                   </div>
                 </div>
@@ -256,7 +273,7 @@ export default function CertificationPage() {
               className="bg-white rounded-2xl border border-[#A7D7C5]/50 shadow-sm overflow-hidden"
             >
               {/* Card top accent */}
-              <div className="h-[3px] bg-gradient-to-r from-[#2E7D5B] to-[#A7D7C5]" />
+              <div className="h-0.75 bg-linear-to-r from-[#2E7D5B] to-[#A7D7C5]" />
 
               <div className="p-7 md:p-10">
                 {/* Title row */}
@@ -290,7 +307,7 @@ export default function CertificationPage() {
                           transition={{ delay: 0.1 + i * 0.05 }}
                           className="flex items-start gap-2 text-[#355F53] text-sm"
                         >
-                          <CheckCircle size={14} className="text-[#2E7D5B] mt-0.5 flex-shrink-0" />
+                          <CheckCircle size={14} className="text-[#2E7D5B] mt-0.5 shrink-0" />
                           {topic}
                         </motion.li>
                       ))}
@@ -311,15 +328,16 @@ export default function CertificationPage() {
                 </div>
 
                 <div className="mt-7">
-                  <motion.button
-                    whileHover={{ scale: 1.04, boxShadow: "0 8px 24px rgba(15,61,46,0.25)" }}
-                    whileTap={{ scale: 0.97 }}
-                    transition={{ duration: 0.15 }}
-                    className="px-7 py-3 bg-[#0F3D2E] text-white rounded-xl font-semibold text-sm hover:bg-[#2E7D5B] transition-colors inline-flex items-center gap-2"
-                  >
-                    Register Now
-                    <ArrowRight size={15} />
-                  </motion.button>
+<motion.button
+  onClick={handleRegisterClick}
+  whileHover={{ scale: 1.04, boxShadow: "0 8px 24px rgba(15,61,46,0.25)" }}
+  whileTap={{ scale: 0.97 }}
+  transition={{ duration: 0.15 }}
+  className="px-7 py-3 bg-[#0F3D2E] text-white rounded-xl font-semibold text-sm hover:bg-[#2E7D5B] transition-colors inline-flex items-center gap-2"
+>
+  Register Now
+  <ArrowRight size={15} />
+</motion.button>
                 </div>
               </div>
             </motion.div>
@@ -357,7 +375,7 @@ export default function CertificationPage() {
                   <motion.div
                     whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(15,61,46,0.18)" }}
                     transition={{ duration: 0.22 }}
-                    className={`relative ${step.dark ? "bg-[#2E7D5B]" : "bg-white"} rounded-2xl p-6 border ${step.dark ? "border-[#0F3D2E]/20" : "border-[#A7D7C5]/60"} text-center shadow-sm flex flex-col items-center justify-start h-full min-h-[200px]`}
+                    className={`relative ${step.dark ? "bg-[#2E7D5B]" : "bg-white"} rounded-2xl p-6 border ${step.dark ? "border-[#0F3D2E]/20" : "border-[#A7D7C5]/60"} text-center shadow-sm flex flex-col items-center justify-start h-full min-h-50`}
                   >
                     {/* Number badge */}
                     <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full ${step.dark ? "bg-[#0F3D2E] text-[#A7D7C5]" : "bg-[#2E7D5B] text-white"} flex items-center justify-center text-xs font-bold shadow-md`}>
@@ -381,14 +399,14 @@ export default function CertificationPage() {
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.3 + i * 0.15 }}
-                    className="flex-shrink-0 mx-2 my-3 md:my-0"
+                    className="shrink-0 mx-2 my-3 md:my-0"
                   >
                     <div className="hidden md:flex items-center">
-                      <div className="w-4 h-[2px] bg-[#2E7D5B]/40" />
+                      <div className="w-4 h-0.5 bg-[#2E7D5B]/40" />
                       <ArrowRight size={16} className="text-[#2E7D5B]" />
                     </div>
                     <div className="md:hidden flex flex-col items-center">
-                      <div className="h-5 w-[2px] bg-[#2E7D5B]/40" />
+                      <div className="h-5 w-0.5 bg-[#2E7D5B]/40" />
                       <svg className="text-[#2E7D5B] rotate-90" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M9 18l6-6-6-6" />
                       </svg>
@@ -421,7 +439,7 @@ export default function CertificationPage() {
             <FadeUp key={i} delay={i * 0.07}>
               <motion.div
                 whileHover={{ y: -4 }}
-                className="bg-white rounded-2xl p-6 border border-[#A7D7C5]/50 shadow-sm text-center h-full min-h-[140px] flex flex-col justify-center"
+                className="bg-white rounded-2xl p-6 border border-[#A7D7C5]/50 shadow-sm text-center h-full min-h-35 flex flex-col justify-center"
               >
                 <div className="text-3xl mb-3">{d.icon}</div>
                 <p className="text-xs font-semibold text-[#2E7D5B] uppercase tracking-wide mb-1">{d.label}</p>
