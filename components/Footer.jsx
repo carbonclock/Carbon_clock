@@ -20,7 +20,7 @@ const quickLinks = [
   { label: "About", href: "/about" },
   { label: "Knowledge Hub", href: "/resources" },
   { label: "Climate Correction Day", href: "/climate-correction-day" },
-  { label: "Resources", href: "/Resources" },
+  { label: "Resources", href: "/resources" },
   { label: "Contact Us", href: "/contact" },
 ];
 
@@ -36,10 +36,11 @@ const services = [
 const socials = [
   // Removed WhatsApp
   { icon: <FaLinkedin size={18} />, href: "https://www.linkedin.com/company/carbon-clock/posts/?feedView=all" },
-  { icon: <FaFacebook size={18} />, href: "#" },
+  { icon: <FaFacebook size={18} />, href: "https://www.facebook.com/share/1ArXCNhEkM/" },
   { icon: <FaInstagram size={18} />, href: "https://www.instagram.com/_carbonclock_?igsh=MThwNmI0cGNzNDM3bQ%3D%3D" },
+  { icon: <FaYoutube size={18} />, href: "https://youtube.com/@carbonclock_vishnu?si=bBpNlU6cIyVRSEmO" },
   // Removed Twitter
- 
+
 ];
 
 export default function Footer() {
@@ -169,7 +170,7 @@ export default function Footer() {
             <li className="flex items-start gap-3 justify-center md:justify-start">
               <MdLocationOn className="text-[#A7D7C5] mt-0.5 shrink-0" size={18} />
               <span className="text-[#C5E8D8]/80 text-sm leading-relaxed">
-                 Mysore, Karnataka India 570018
+                Mysore, Karnataka India 570018
               </span>
             </li>
             <li className="flex items-center gap-3 justify-center md:justify-start">

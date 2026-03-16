@@ -4,8 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import DashboardNavbar from "@/components/DashboardNavbar"; // Import DashboardNavbar component
-import Footer from "@/components/Footer"; // Import Footer component
+import DashboardNavbar from "@/components/DashboardNavbar";
+import Footer from "@/components/Footer";
 
 /* ── Course data ── */
 const courses = [
@@ -23,6 +23,7 @@ const courses = [
       "Impacts, Risks & Tipping Points",
       "Mitigation, Adaptation & Global Frameworks",
     ],
+    slug: "climate-change-science-solutions",
   },
   {
     id: 2,
@@ -38,6 +39,7 @@ const courses = [
       "Scope 1, 2 & 3 Emissions Measurement",
       "Reporting Standards & Verification",
     ],
+    slug: "carbon-accounting-reporting",
   },
   {
     id: 3,
@@ -53,6 +55,7 @@ const courses = [
       "Activity Data, Emission Factors & Calculations",
       "Target-Setting: SBTi, Net Zero & NDCs",
     ],
+    slug: "ghg-accounting-protocol",
   },
   {
     id: 4,
@@ -68,6 +71,7 @@ const courses = [
       "Life Cycle Inventory & Impact Assessment",
       "Interpretation, Application & EPDs",
     ],
+    slug: "life-cycle-assessment",
   },
   {
     id: 5,
@@ -83,6 +87,7 @@ const courses = [
       "ESG Frameworks: GRI, TCFD, CSRD & CBAM",
       "Sustainable Business Strategy & Reporting",
     ],
+    slug: "sustainability-fundamentals-esg",
   },
 ];
 
@@ -103,11 +108,6 @@ const steps = [
   { num: "05", title: "Share & Advance", desc: "Add your certificate to LinkedIn, your CV, and professional profiles to stand out in the climate economy." },
 ];
 
-
-
-/* ══════════════════════════════════════════
-   MAIN DASHBOARD PAGE
-══════════════════════════════════════════ */
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -121,7 +121,6 @@ export default function DashboardPage() {
     try { setUser(JSON.parse(userData)); } catch { router.push("/login"); }
   }, [router]);
 
-  // 3D Cursor effect for hero section
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (heroRef.current) {
@@ -142,11 +141,19 @@ export default function DashboardPage() {
     router.push("/");
   };
 
+
+  const handleExploreCourse = (slug) => {
+    router.push(`/course/${slug}`);
+  };
+
+  const handleTakeAssessment = (slug) => {
+    router.push(`/assessment/${slug}`);
+  };
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-      {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         .font-serif-display { font-family: 'DM Serif Display', serif; }
@@ -156,13 +163,12 @@ export default function DashboardPage() {
 
       <main className="flex-1">
 
-        {/* ── HERO SECTION WITH 3D CURSOR EFFECT ── */}
+        {/* ── HERO SECTION ── */}
         <section
           ref={heroRef}
           className="relative overflow-hidden"
           style={{ background: "linear-gradient(135deg, #1a4a3a 0%, #2a6a52 50%, #3a8a62 100%)" }}
         >
-          {/* Floating Bubbles */}
           <div className="absolute inset-0 pointer-events-none">
             {[...Array(5)].map((_, i) => (
               <motion.div
@@ -191,7 +197,6 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          {/* Fading 3D Cursor Light Effect */}
           <motion.div
             className="absolute inset-0 pointer-events-none"
             style={{
@@ -204,11 +209,9 @@ export default function DashboardPage() {
             transition={{ type: "tween", duration: 0.08 }}
           />
 
-          {/* Subtle radial glow background */}
           <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 70% 50%, rgba(80,200,120,0.08) 0%, transparent 70%)" }} />
 
           <div className="relative max-w-7xl mx-auto px-6 pt-20 pb-10 text-center">
-            {/* Pill badge */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -245,19 +248,24 @@ export default function DashboardPage() {
               className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
             >
               <motion.button
+                onClick={() => document.getElementById("courses-section").scrollIntoView({ behavior: "smooth" })}
                 className="px-7 py-3.5 rounded-full font-semibold text-[#0F3D2E] cursor-pointer transition-all flex items-center gap-2"
                 style={{ background: "#D4AF37" }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Explore Courses <ArrowRight size={16} />
               </motion.button>
               <motion.button
+                onClick={() => document.getElementById("how-works-section").scrollIntoView({ behavior: "smooth" })}
                 className="px-7 py-3.5 rounded-full font-semibold text-white border border-[#A7D7C5]/50 cursor-pointer transition-all hover:border-[#A7D7C5]"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 View Certifications
               </motion.button>
             </motion.div>
 
-            {/* Stats row */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -280,9 +288,8 @@ export default function DashboardPage() {
         </section>
 
         {/* ── CERTIFICATION PROGRAMS ── */}
-        <section className="py-20 px-6" style={{ background: "#F5F0E8" }}>
+        <section id="courses-section" className="py-20 px-6" style={{ background: "#F5F0E8" }}>
           <div className="max-w-7xl mx-auto">
-            {/* Section header */}
             <div className="text-center mb-14">
               <p className="text-[#2E7D5B] text-xs tracking-[0.18em] uppercase mb-3">// CHOOSE YOUR PATH</p>
               <h2 className="font-serif-display text-4xl sm:text-5xl font-bold text-[#0F3D2E] mb-4">Certification Programs</h2>
@@ -291,7 +298,6 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            {/* Cards grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
               {courses.map((course, i) => (
                 <motion.div
@@ -303,7 +309,6 @@ export default function DashboardPage() {
                   whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(15,61,46,0.14)" }}
                   className="rounded-2xl overflow-hidden bg-white border border-[#E0EDE8] transition-all cursor-pointer"
                 >
-                  {/* Colored header */}
                   <div className="p-6 pb-7 relative" style={{ backgroundColor: course.headerBg }}>
                     <div className="text-4xl mb-5">{course.emoji}</div>
                     <p className="text-[#A7D7C5]/70 text-xs tracking-[0.14em] uppercase mb-1.5">{course.label}</p>
@@ -316,7 +321,6 @@ export default function DashboardPage() {
                     </span>
                   </div>
 
-                  {/* Body */}
                   <div className="p-6">
                     <p className="text-[#5C7A6E] text-sm leading-relaxed mb-5">{course.desc}</p>
                     <ul className="space-y-2.5 mb-7">
@@ -333,6 +337,7 @@ export default function DashboardPage() {
                       <motion.button
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
+                        onClick={() => handleExploreCourse(course.slug)}
                         className="flex-1 py-2.5 rounded-xl font-semibold text-white text-sm cursor-pointer transition-all"
                         style={{ background: "#0F3D2E" }}
                       >
@@ -341,6 +346,7 @@ export default function DashboardPage() {
                       <motion.button
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
+                        onClick={() => handleTakeAssessment(course.slug)}
                         className="flex-1 py-2.5 rounded-xl font-semibold text-[#0F3D2E] text-sm border border-[#C5DDD4] cursor-pointer transition-all hover:border-[#2E7D5B]"
                       >
                         Take Assessment
@@ -374,8 +380,8 @@ export default function DashboardPage() {
                   transition={{ duration: 0.4, delay: i * 0.07 }}
                   whileHover={{ scale: 1.02, borderColor: "rgba(167,215,197,0.4)" }}
                   className="rounded-2xl p-6 text-center transition-all cursor-default"
-                  style={{ 
-                    background: "rgba(255,255,255,0.08)", 
+                  style={{
+                    background: "rgba(255,255,255,0.08)",
                     border: "1px solid rgba(167,215,197,0.2)",
                     boxShadow: "0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1)"
                   }}
@@ -390,7 +396,7 @@ export default function DashboardPage() {
         </section>
 
         {/* ── HOW IT WORKS ── */}
-        <section className="py-20 px-6" style={{ background: "#faf8f3" }}>
+        <section id="how-works-section" className="py-20 px-6" style={{ background: "#faf8f3" }}>
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-14">
               <p className="text-[#5a8a78] text-xs tracking-[0.18em] uppercase mb-3">// HOW IT WORKS</p>
@@ -425,7 +431,6 @@ export default function DashboardPage() {
               ))}
             </div>
 
-            {/* Step 5 centered */}
             <div className="flex justify-center">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -454,7 +459,6 @@ export default function DashboardPage() {
 
       </main>
 
-      {/* ── IMPORTED FOOTER ── */}
       <Footer />
     </div>
   );
