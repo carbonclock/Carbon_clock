@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { BookOpen, Award, GraduationCap, CheckCircle, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import LoginModal from "@/components/LoginModal";
 import { useState } from "react";
 
 /* ── Fade up on scroll ── */
@@ -26,51 +25,84 @@ const FadeUp = ({ children, delay = 0, className = "" }) => {
 
 const certifications = [
   {
-    title: "Sustainability Basics Certification",
-    overview: "An introductory program covering core environmental and sustainability principles.",
+    id: 1,
+    emoji: "🌍",
+    label: "COURSE 01",
+    title: "Climate Change: Science & Solutions",
+    level: "Foundational",
+    headerBg: "#1A3D2B",
+    overview:
+      "Understand the climate system, drivers of change, and evidence-based global solutions from policy to technology.",
     topics: [
-      "Climate Change & Global Warming",
-      "ESG Fundamentals",
-      "Life Cycle Assessment (LCA) Basics",
-      "Product Carbon Footprint (PCF)",
-      "Scope 1, 2 & 3 Emissions",
-      "Net Zero & Carbon Neutrality",
+      "The Climate System & Greenhouse Effect",
+      "Impacts, Risks & Tipping Points",
+      "Mitigation, Adaptation & Global Frameworks",
     ],
-    audience: "Students, graduates, early-career professionals, and sustainability beginners.",
-    outcome: "Strong foundational understanding of sustainability concepts and global climate frameworks.",
-    level: "Beginner",
-    badge: "🌱",
+    slug: "climate-change-science-solutions",
   },
   {
-    title: "GHG Accounting Certification",
-    overview: "A practical certification focused on organizational greenhouse gas accounting and reporting.",
-    topics: [
-      "GHG Protocol Framework",
-      "Scope 1, 2 & 3 Accounting",
-      "Emission Factors & Data Collection",
-      "Activity vs Spend-Based Methods",
-      "ISO 14064 Introduction",
-      "Carbon Reporting & Disclosure",
-    ],
-    audience: "Engineers, sustainability professionals, consultants, and ESG teams.",
-    outcome: "Ability to quantify, calculate, and report organizational emissions accurately.",
+    id: 2,
+    emoji: "📊",
+    label: "COURSE 02",
+    title: "Carbon Accounting & Reporting",
     level: "Intermediate",
-    badge: "📊",
+    headerBg: "#1B3A5C",
+    overview:
+      "Master the principles and methodologies for measuring, reporting, and verifying corporate carbon footprints.",
+    topics: [
+      "Foundations of Carbon Accounting",
+      "Scope 1, 2 & 3 Emissions Measurement",
+      "Reporting Standards & Verification",
+    ],
+    slug: "carbon-accounting-reporting",
   },
   {
-    title: "Carbon Accounting Basics Certification",
-    overview: "A structured program focused on product and corporate carbon footprint calculation.",
+    id: 3,
+    emoji: "🏭",
+    label: "COURSE 03",
+    title: "GHG Accounting & the GHG Protocol",
+    level: "Intermediate-Advanced",
+    headerBg: "#4A3800",
+    overview:
+      "Deep-dive into greenhouse gas accounting frameworks, IPCC categories, and corporate standard implementation.",
     topics: [
-      "Product Carbon Footprint (PCF)",
-      "Corporate Carbon Footprint (CCF)",
-      "Life Cycle Thinking",
-      "Emission Allocation Principles",
-      "Basic Reporting & Documentation",
+      "GHG Protocol: Corporate Standard",
+      "Activity Data, Emission Factors & Calculations",
+      "Target-Setting: SBTi, Net Zero & NDCs",
     ],
-    audience: "Environmental engineers, LCA enthusiasts, and sustainability analysts.",
-    outcome: "Practical understanding of carbon measurement methodologies.",
+    slug: "ghg-accounting-protocol",
+  },
+  {
+    id: 4,
+    emoji: "♻️",
+    label: "COURSE 04",
+    title: "Life Cycle Assessment (LCA)",
     level: "Advanced",
-    badge: "♻️",
+    headerBg: "#3B1F72",
+    overview:
+      "Learn to quantify environmental impacts of products and systems from cradle to grave using ISO 14040/44 standards.",
+    topics: [
+      "LCA Fundamentals & ISO Framework",
+      "Life Cycle Inventory & Impact Assessment",
+      "Interpretation, Application & EPDs",
+    ],
+    slug: "life-cycle-assessment",
+  },
+  {
+    id: 5,
+    emoji: "🌿",
+    label: "COURSE 05",
+    title: "Sustainability Fundamentals & ESG",
+    level: "Foundational-Intermediate",
+    headerBg: "#1A4A38",
+    overview:
+      "Build a solid foundation in sustainability thinking, ESG frameworks, and the evolving corporate responsibility landscape.",
+    topics: [
+      "Sustainability Principles & the SDGs",
+      "ESG Frameworks: GRI, TCFD, CSRD & CBAM",
+      "Sustainable Business Strategy & Reporting",
+    ],
+    slug: "sustainability-fundamentals-esg",
   },
 ];
 
@@ -111,13 +143,10 @@ const workflowSteps = [
 ];
 
 export default function CertificationPage() {
-
-   const router = useRouter();
-   const [showLogin,setShowLogin] = useState(false);
+  const router = useRouter();
 
   const handleRegisterClick = () => {
     const token = localStorage.getItem("token");
-
     if (!token) {
       router.push("/login");
     } else {
@@ -130,8 +159,6 @@ export default function CertificationPage() {
 
       {/* ══ HERO ══ */}
       <section className="relative text-center px-6 overflow-hidden h-screen flex items-center justify-center">
-
-        {/* Ken Burns zoom on background image */}
         <motion.div
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
@@ -139,19 +166,14 @@ export default function CertificationPage() {
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/certificate.png')" }}
         />
-        {/* Green tint overlay */}
         <div className="absolute inset-0 bg-[#0F3D2E]/60" />
-        {/* Bottom fade out */}
         <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-[#F4F8F6]/40" />
 
-        {/* Animated shimmer bands */}
         <motion.div
           animate={{ x: ["-100%", "200%"] }}
           transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 5 }}
           className="absolute inset-y-0 w-1/3 bg-linear-to-r from-transparent via-white/5 to-transparent skew-x-12 pointer-events-none"
         />
-
-        {/* Glowing pulsing ring — center */}
         <motion.div
           animate={{ scale: [1, 1.6, 1], opacity: [0.2, 0, 0.2] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeOut" }}
@@ -163,21 +185,15 @@ export default function CertificationPage() {
           className="absolute w-72 h-72 rounded-full border border-[#A7D7C5]/20 pointer-events-none"
         />
 
-        {/* Corner accent lines */}
-        {/* Top-left */}
         <motion.div initial={{ opacity: 0, x: -20, y: -20 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 1, delay: 0.5 }}
           className="absolute top-8 left-8 w-12 h-12 border-t-2 border-l-2 border-[#A7D7C5]/60 pointer-events-none" />
-        {/* Top-right */}
         <motion.div initial={{ opacity: 0, x: 20, y: -20 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 1, delay: 0.6 }}
           className="absolute top-8 right-8 w-12 h-12 border-t-2 border-r-2 border-[#A7D7C5]/60 pointer-events-none" />
-        {/* Bottom-left */}
         <motion.div initial={{ opacity: 0, x: -20, y: 20 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 1, delay: 0.7 }}
           className="absolute bottom-8 left-8 w-12 h-12 border-b-2 border-l-2 border-[#A7D7C5]/60 pointer-events-none" />
-        {/* Bottom-right */}
         <motion.div initial={{ opacity: 0, x: 20, y: 20 }} animate={{ opacity: 1, x: 0, y: 0 }} transition={{ duration: 1, delay: 0.8 }}
           className="absolute bottom-8 right-8 w-12 h-12 border-b-2 border-r-2 border-[#A7D7C5]/60 pointer-events-none" />
 
-        {/* Floating dots — left and right sides only */}
         {[
           { size: 5, top: "20%", left: "6%", delay: 0, dur: 5 },
           { size: 3, top: "55%", left: "4%", delay: 1.5, dur: 7 },
@@ -202,19 +218,16 @@ export default function CertificationPage() {
               Carbon Clock Certified
             </span>
           </FadeUp>
-
           <FadeUp delay={0.1}>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
               <span className="text-[#A7D7C5]">Certification</span>{" "}Programs
             </h1>
           </FadeUp>
-
           <FadeUp delay={0.2}>
             <p className="mt-5 text-white/80 text-lg leading-relaxed">
               Industry-focused certification programs designed for students, professionals, and sustainability leaders seeking expertise in climate and carbon management.
             </p>
           </FadeUp>
-
           <FadeUp delay={0.3}>
             <div className="mt-8 flex items-center justify-center gap-3">
               <span className="h-px w-16 bg-white/40 rounded-full" />
@@ -253,8 +266,8 @@ export default function CertificationPage() {
         </div>
       </section>
 
-      {/* ══ CERTIFICATION CARDS ══ */}
-      <section className="max-w-6xl mx-auto px-6 pb-24 space-y-8">
+      {/* ══ CERTIFICATION CARDS — Dashboard Style (matching Figma/screenshot exactly) ══ */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pb-24">
         <FadeUp>
           <div className="text-center mb-12">
             <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#2E7D5B] bg-[#2E7D5B]/10 px-4 py-1.5 rounded-full mb-4 tracking-wide">
@@ -265,89 +278,95 @@ export default function CertificationPage() {
           </div>
         </FadeUp>
 
-        {certifications.map((cert, index) => (
-          <FadeUp key={index} delay={index * 0.1}>
-            <motion.div
-              whileHover={{ boxShadow: "0 20px 52px rgba(15,61,46,0.12)" }}
-              transition={{ duration: 0.25 }}
-              className="bg-white rounded-2xl border border-[#A7D7C5]/50 shadow-sm overflow-hidden"
-            >
-              {/* Card top accent */}
-              <div className="h-0.75 bg-linear-to-r from-[#2E7D5B] to-[#A7D7C5]" />
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+          .cert-font-serif { font-family: 'DM Serif Display', serif; }
+        `}</style>
 
-              <div className="p-7 md:p-10">
-                {/* Title row */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
-                  <span className="text-3xl">{cert.badge}</span>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-xl md:text-2xl font-bold text-[#0F3D2E]">{cert.title}</h2>
-                      <span className="text-xs font-semibold px-3 py-1 rounded-full bg-[#E6F2ED] text-[#2E7D5B] border border-[#A7D7C5]/50">
-                        {cert.level}
-                      </span>
-                    </div>
-                    <p className="text-[#355F53] text-sm mt-1">{cert.overview}</p>
-                  </div>
+        {/* 3-column on desktop, 2-column on tablet, 1-column on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {certifications.map((cert, index) => (
+            <FadeUp key={index} delay={index * 0.1} className="h-full">
+              <motion.div
+                whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(15,61,46,0.14)" }}
+                transition={{ duration: 0.2 }}
+                className="rounded-2xl overflow-hidden bg-white border border-[#E0EDE8] shadow-sm flex flex-col h-full"
+              >
+                {/* ── Coloured header (matches dashboard exactly) ── */}
+                <div
+                  className="p-5 pb-6 relative"
+                  style={{ backgroundColor: cert.headerBg }}
+                >
+                  {/* Emoji icon — larger, matches screenshot */}
+                  <div className="text-4xl mb-4">{cert.emoji}</div>
+
+                  {/* Course label */}
+                  <p className="text-[#A7D7C5]/70 text-xs tracking-[0.14em] uppercase mb-1.5 font-medium">
+                    {cert.label}
+                  </p>
+
+                  {/* Course title — bold serif, matches screenshot */}
+                  <h3 className="cert-font-serif text-xl font-bold text-white leading-snug mb-3">
+                    {cert.title}
+                  </h3>
+
+                  {/* Level badge */}
+                  <span
+                    className="inline-block px-3 py-1 rounded-full text-xs text-white/80 border border-white/25 font-medium"
+                    style={{ background: "rgba(255,255,255,0.14)" }}
+                  >
+                    {cert.level}
+                  </span>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8 mt-6">
-                  {/* Topics */}
-                  <div>
-                    <h3 className="font-bold text-[#0F3D2E] mb-3 flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-[#2E7D5B] inline-block" />
-                      Key Topics
-                    </h3>
-                    <ul className="space-y-2">
-                      {cert.topics.map((topic, i) => (
-                        <motion.li
-                          key={i}
-                          initial={{ opacity: 0, x: -8 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          viewport={{ once: true }}
-                          transition={{ delay: 0.1 + i * 0.05 }}
-                          className="flex items-start gap-2 text-[#355F53] text-sm"
-                        >
-                          <CheckCircle size={14} className="text-[#2E7D5B] mt-0.5 shrink-0" />
-                          {topic}
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </div>
+                {/* ── White body ── */}
+                <div className="p-5 flex flex-col flex-grow">
+                  {/* Overview text */}
+                  <p className="text-[#5C7A6E] text-sm leading-relaxed mb-5">
+                    {cert.overview}
+                  </p>
 
-                  {/* Audience + Outcome */}
-                  <div className="space-y-5">
-                    <div className="bg-[#F4F8F6] rounded-xl p-4 border border-[#A7D7C5]/40">
-                      <h3 className="font-bold text-[#0F3D2E] text-sm mb-1">👥 Who Should Join?</h3>
-                      <p className="text-[#355F53] text-sm">{cert.audience}</p>
-                    </div>
-                    <div className="bg-[#E6F2ED] rounded-xl p-4 border border-[#A7D7C5]/40">
-                      <h3 className="font-bold text-[#0F3D2E] text-sm mb-1">🎯 Outcome</h3>
-                      <p className="text-[#355F53] text-sm">{cert.outcome}</p>
-                    </div>
-                  </div>
-                </div>
+                  {/* Module list — M1/M2/M3 badges exactly like dashboard */}
+                  <ul className="space-y-0 mb-6 flex-grow">
+                    {cert.topics.map((topic, j) => (
+                      <motion.li
+                        key={j}
+                        initial={{ opacity: 0, x: -8 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 + j * 0.05 }}
+                        className="flex items-center gap-3 py-3 border-b border-[#EEF5F1] last:border-0"
+                      >
+                        {/* M1 / M2 / M3 badge — matches screenshot */}
+                        <span className="shrink-0 w-8 h-8 rounded-full bg-[#E6F2ED] text-[#2E7D5B] flex items-center justify-center text-[10px] font-bold border border-[#A7D7C5]/40">
+                          M{j + 1}
+                        </span>
+                        <span className="text-[#3A5C50] text-sm leading-snug">{topic}</span>
+                      </motion.li>
+                    ))}
+                  </ul>
 
-                <div className="mt-7">
-<motion.button
-  onClick={handleRegisterClick}
-  whileHover={{ scale: 1.04, boxShadow: "0 8px 24px rgba(15,61,46,0.25)" }}
-  whileTap={{ scale: 0.97 }}
-  transition={{ duration: 0.15 }}
-  className="px-7 py-3 bg-[#0F3D2E] text-white rounded-xl font-semibold text-sm hover:bg-[#2E7D5B] transition-colors inline-flex items-center gap-2"
->
-  Register Now
-  <ArrowRight size={15} />
-</motion.button>
+                  {/* Register Now button */}
+                  <motion.button
+                    onClick={handleRegisterClick}
+                    whileHover={{ scale: 1.03, boxShadow: "0 8px 24px rgba(15,61,46,0.25)" }}
+                    whileTap={{ scale: 0.97 }}
+                    transition={{ duration: 0.15 }}
+                    className="w-full py-2.5 rounded-xl font-semibold text-white text-sm cursor-pointer transition-all flex items-center justify-center gap-2 mt-auto"
+                    style={{ background: "#0F3D2E" }}
+                  >
+                    Register Now
+                    <ArrowRight size={14} />
+                  </motion.button>
                 </div>
-              </div>
-            </motion.div>
-          </FadeUp>
-        ))}
+              </motion.div>
+            </FadeUp>
+          ))}
+        </div>
       </section>
 
       {/* ══ HOW IT WORKS — Visual Workflow ══ */}
       <section className="bg-[#E6F2ED] py-24 px-6 overflow-hidden relative">
-        {/* Orb */}
         <motion.div animate={{ y: [0, -18, 0] }} transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-0 right-0 w-72 h-72 rounded-full bg-[#A7D7C5]/30 blur-3xl pointer-events-none" />
 
@@ -365,23 +384,18 @@ export default function CertificationPage() {
             </div>
           </FadeUp>
 
-          {/* Workflow diagram */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-0 items-stretch">
             {workflowSteps.map((step, i) => (
               <div key={i} className="flex flex-col md:flex-row items-center">
-
-                {/* Step card — equal size via flex */}
                 <FadeUp delay={i * 0.15} className="w-full md:flex-1 h-full">
                   <motion.div
                     whileHover={{ y: -6, boxShadow: "0 20px 40px rgba(15,61,46,0.18)" }}
                     transition={{ duration: 0.22 }}
                     className={`relative ${step.dark ? "bg-[#2E7D5B]" : "bg-white"} rounded-2xl p-6 border ${step.dark ? "border-[#0F3D2E]/20" : "border-[#A7D7C5]/60"} text-center shadow-sm flex flex-col items-center justify-start h-full min-h-50`}
                   >
-                    {/* Number badge */}
                     <div className={`absolute -top-3.5 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full ${step.dark ? "bg-[#0F3D2E] text-[#A7D7C5]" : "bg-[#2E7D5B] text-white"} flex items-center justify-center text-xs font-bold shadow-md`}>
                       {step.number}
                     </div>
-
                     <div className="mt-4 text-4xl mb-3">{step.icon}</div>
                     <h3 className={`font-bold text-base mb-1.5 ${step.dark ? "text-white" : "text-[#0F3D2E]"}`}>
                       {step.title}
@@ -392,7 +406,6 @@ export default function CertificationPage() {
                   </motion.div>
                 </FadeUp>
 
-                {/* Arrow connector (not after last) */}
                 {i < workflowSteps.length - 1 && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
@@ -429,7 +442,7 @@ export default function CertificationPage() {
           <h2 className="text-3xl md:text-4xl font-bold text-[#0F3D2E] mb-10">Certification Details</h2>
         </FadeUp>
 
-   <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-5">
           {[
             { label: "Mode", value: "Online / Hybrid", icon: "💻" },
             { label: "Duration", value: "Short-term structured", icon: "⏱️" },
