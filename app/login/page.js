@@ -47,6 +47,7 @@ export default function LoginPage() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("loginAt", Date.now().toString());
 
       // Go to welcome splash which then redirects to dashboard
       router.push("/welcome");

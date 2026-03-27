@@ -1,37 +1,61 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-// ONLY these pages are accessible when logged IN
-const PROTECTED_PAGES = ["/dashboard", "/welcome"];
+// Session duration in milliseconds (e.g., 2 hours)
+const SESSION_DURATION = 2 * 60 * 60 * 1000;
 
-// ONLY these pages are accessible when logged OUT
-const AUTH_PAGES = ["/login", "/signup"];
+// Pages that require authentication
+const PROTECTED_PAGES = ["/dashboard", "/welcome", "/course", "/assessment"];
 
 export default function AuthGuard({ children }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const loginAt = localStorage.getItem("loginAt");
+    const now = Date.now();
 
-    if (token) {
+    const isSessionValid = token && loginAt && (now - parseInt(loginAt, 10)) < SESSION_DURATION;
+
+    if (!isSessionValid && token) {
+      // Session expired
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("loginAt");
+      router.replace("/login?message=Session expired. Please login again.");
+      return;
+    }
+
+    if (isSessionValid) {
       // ── User is LOGGED IN ──
-      // They can ONLY access /dashboard and /welcome
-      // Any other page → redirect to dashboard
-      if (!PROTECTED_PAGES.includes(pathname)) {
+      // If they try to access ANY page that is NOT protected → redirect to dashboard
+      const isAccessingProtected = PROTECTED_PAGES.some(path => pathname.startsWith(path));
+      if (!isAccessingProtected) {
         router.replace("/dashboard");
       }
     } else {
       // ── User is LOGGED OUT ──
-      // They cannot access /dashboard or /welcome
-      // Redirect them to home
-      if (PROTECTED_PAGES.includes(pathname)) {
+      // Redirect to login if they try to access protected pages
+      if (PROTECTED_PAGES.some(path => pathname.startsWith(path))) {
         router.replace("/login");
       }
     }
+    
+    setIsChecking(false);
   }, [pathname, router]);
+
+  // Prevent flash of protected content while checking auth
+  if (isChecking && PROTECTED_PAGES.some(path => pathname.startsWith(path))) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F0E8]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0F3D2E]"></div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 }

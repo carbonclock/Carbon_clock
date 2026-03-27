@@ -804,6 +804,7 @@ export default function AssessmentPage() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("loginAt");
     router.push("/");
   };
 

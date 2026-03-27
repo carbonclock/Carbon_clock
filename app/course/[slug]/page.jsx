@@ -281,6 +281,7 @@ export default function CoursePage() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("loginAt");
     router.push("/");
   };
 
