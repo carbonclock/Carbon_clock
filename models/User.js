@@ -21,6 +21,16 @@ const UserSchema = new mongoose.Schema({
     required: true,
   },
 
+  purchasedCourses: {
+    type: [String],
+    default: [],
+  },
+
+  completedModules: {
+    type: [String], // Format: "slug_module_index"
+    default: [],
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,

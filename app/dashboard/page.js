@@ -3,7 +3,8 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Lock, Unlock, CreditCard } from "lucide-react";
+import Script from "next/script";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
 
@@ -17,6 +18,7 @@ const courses = [
     level: "Foundational",
     levelColor: "#1F4E3A",
     headerBg: "#1A3D2B",
+    price: 588.82, // 499 + 18% GST
     desc: "Understand the climate system, drivers of change, and evidence-based global solutions from policy to technology.",
     modules: [
       "The Climate System & Greenhouse Effect",
@@ -33,6 +35,7 @@ const courses = [
     level: "Intermediate",
     levelColor: "#1B3050",
     headerBg: "#1B3A5C",
+    price: 942.82, // 799 + 18% GST
     desc: "Master the principles and methodologies for measuring, reporting, and verifying corporate carbon footprints.",
     modules: [
       "Foundations of Carbon Accounting",
@@ -49,6 +52,7 @@ const courses = [
     level: "Intermediate-Advanced",
     levelColor: "#3D2E00",
     headerBg: "#4A3800",
+    price: 1178.82, // 999 + 18% GST
     desc: "Deep-dive into greenhouse gas accounting frameworks, IPCC categories, and corporate standard implementation.",
     modules: [
       "GHG Protocol: Corporate Standard",
@@ -65,6 +69,7 @@ const courses = [
     level: "Advanced",
     levelColor: "#2D1B5E",
     headerBg: "#3B1F72",
+    price: 1178.82, // 999 + 18% GST
     desc: "Learn to quantify environmental impacts of products and systems from cradle to grave using ISO 14040/44 standards.",
     modules: [
       "LCA Fundamentals & ISO Framework",
@@ -81,6 +86,7 @@ const courses = [
     level: "Foundational-Intermediate",
     levelColor: "#0F3D2E",
     headerBg: "#1A4A38",
+    price: 942.82, // 799 + 18% GST
     desc: "Build a solid foundation in sustainability thinking, ESG frameworks, and the evolving corporate responsibility landscape.",
     modules: [
       "Sustainability Principles & the SDGs",
@@ -113,12 +119,32 @@ export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const heroRef = useRef(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [loadingPayment, setLoadingPayment] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userData = localStorage.getItem("user");
     if (!token) { router.push("/login"); return; }
-    try { setUser(JSON.parse(userData)); } catch { router.push("/login"); }
+    
+    // Fetch latest user profile to sync purchased courses
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/user/profile", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.user) {
+          setUser(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
+        } else {
+          router.push("/login");
+        }
+      } catch (error) {
+        console.error("Profile fetch error:", error);
+        router.push("/login");
+      }
+    };
+
+    fetchProfile();
   }, [router]);
 
   useEffect(() => {
@@ -151,10 +177,92 @@ export default function DashboardPage() {
     router.push(`/assessment/${slug}`);
   };
 
+  const handlePayment = async (course) => {
+    setLoadingPayment(true);
+    try {
+      const token = localStorage.getItem("token");
+      
+      // 1. Create Order
+      const res = await fetch("/api/payment/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: course.price,
+          courseSlug: course.slug,
+          userId: user._id || user.id,
+        }),
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Failed to create order");
+      }
+      
+      const order = await res.json();
+
+      // 2. Open Razorpay Checkout
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_YOUR_KEY_ID",
+        amount: order.amount,
+        currency: order.currency,
+        name: "Carbon Clock",
+        description: `Enrollment for ${course.title}`,
+        order_id: order.id,
+        handler: async function (response) {
+          // 3. Verify Payment
+          const verifyRes = await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              userId: user._id || user.id,
+              courseSlug: course.slug,
+            }),
+          });
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+            // Update local state and localStorage without full reload
+            const updatedUser = { 
+              ...user, 
+              purchasedCourses: [...(user.purchasedCourses || []), course.slug] 
+            };
+            setUser(updatedUser);
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+            
+            alert("Payment successful! Course access granted.");
+          } else {
+            alert("Payment verification failed.");
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.phone || "",
+        },
+        theme: {
+          color: "#0F3D2E",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Something went wrong with the payment.");
+    } finally {
+      setLoadingPayment(false);
+    }
+  };
+
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         .font-serif-display { font-family: 'DM Serif Display', serif; }
@@ -300,62 +408,82 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-              {courses.map((course, i) => (
-                <motion.div
-                  key={course.id}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.08 }}
-                  whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(15,61,46,0.14)" }}
-                  className="rounded-2xl overflow-hidden bg-white border border-[#E0EDE8] transition-all cursor-pointer"
-                >
-                  <div className="p-6 pb-7 relative" style={{ backgroundColor: course.headerBg }}>
-                    <div className="text-4xl mb-5">{course.emoji}</div>
-                    <p className="text-[#A7D7C5]/70 text-xs tracking-[0.14em] uppercase mb-1.5">{course.label}</p>
-                    <h3 className="font-serif-display text-xl font-bold text-white leading-snug mb-3">{course.title}</h3>
-                    <span
-                      className="inline-block px-3 py-1 rounded-full text-xs text-white/80 border border-white/20"
-                      style={{ background: "rgba(255,255,255,0.12)" }}
-                    >
-                      {course.level}
-                    </span>
-                  </div>
-
-                  <div className="p-6">
-                    <p className="text-[#5C7A6E] text-sm leading-relaxed mb-5">{course.desc}</p>
-                    <ul className="space-y-2.5 mb-7">
-                      {course.modules.map((mod, j) => (
-                        <li key={j} className="flex items-start gap-3 pb-2.5 border-b border-[#E8F0EC] last:border-0 last:pb-0">
-                          <span className="shrink-0 w-6 h-6 rounded-full bg-[#E6F2ED] text-[#2E7D5B] flex items-center justify-center text-[10px] font-bold mt-0.5">
-                            M{j + 1}
-                          </span>
-                          <span className="text-[#3A5C50] text-sm">{mod}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="flex items-center gap-3">
-                      <motion.button
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleExploreCourse(course.slug)}
-                        className="flex-1 py-2.5 rounded-xl font-semibold text-white text-sm cursor-pointer transition-all"
-                        style={{ background: "#0F3D2E" }}
+              {courses.map((course, i) => {
+                const isPurchased = user?.purchasedCourses?.includes(course.slug);
+                
+                return (
+                  <motion.div
+                    key={course.id}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.08 }}
+                    whileHover={{ y: -4, boxShadow: "0 16px 40px rgba(15,61,46,0.14)" }}
+                    className="rounded-2xl overflow-hidden bg-white border border-[#E0EDE8] transition-all cursor-pointer"
+                  >
+                    <div className="p-6 pb-7 relative" style={{ backgroundColor: course.headerBg }}>
+                      <div className="flex items-center justify-between mb-5">
+                        <div className="text-4xl">{course.emoji}</div>
+                        {isPurchased ? (
+                          <div className="bg-white/20 p-2 rounded-full backdrop-blur-md">
+                            <Unlock size={20} className="text-[#A7D7C5]" />
+                          </div>
+                        ) : (
+                          <div className="bg-black/20 p-2 rounded-full backdrop-blur-md">
+                            <Lock size={20} className="text-white/60" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[#A7D7C5]/70 text-xs tracking-[0.14em] uppercase mb-1.5">{course.label}</p>
+                      <h3 className="font-serif-display text-xl font-bold text-white leading-snug mb-3">{course.title}</h3>
+                      <span
+                        className="inline-block px-3 py-1 rounded-full text-xs text-white/80 border border-white/20"
+                        style={{ background: "rgba(255,255,255,0.12)" }}
                       >
-                        Explore Course
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleTakeAssessment(course.slug)}
-                        className="flex-1 py-2.5 rounded-xl font-semibold text-[#0F3D2E] text-sm border border-[#C5DDD4] cursor-pointer transition-all hover:border-[#2E7D5B]"
-                      >
-                        Take Assessment
-                      </motion.button>
+                        {course.level}
+                      </span>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+
+                    <div className="p-6">
+                      <p className="text-[#5C7A6E] text-sm leading-relaxed mb-5">{course.desc}</p>
+                      <ul className="space-y-2.5 mb-7">
+                        {course.modules.map((mod, j) => (
+                          <li key={j} className="flex items-start gap-3 pb-2.5 border-b border-[#E8F0EC] last:border-0 last:pb-0">
+                            <span className="shrink-0 w-6 h-6 rounded-full bg-[#E6F2ED] text-[#2E7D5B] flex items-center justify-center text-[10px] font-bold mt-0.5">
+                              M{j + 1}
+                            </span>
+                            <span className="text-[#3A5C50] text-sm">{mod}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      {isPurchased ? (
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => handleExploreCourse(course.slug)}
+                          className="w-full py-2.5 rounded-xl font-semibold text-white text-sm cursor-pointer transition-all text-center"
+                          style={{ background: "#0F3D2E" }}
+                        >
+                          Explore Course
+                        </motion.button>
+                      ) : (
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          disabled={loadingPayment}
+                          onClick={() => handlePayment(course)}
+                          className="w-full py-3.5 rounded-xl font-bold text-[#0F3D2E] text-base cursor-pointer transition-all flex items-center justify-center gap-2"
+                          style={{ background: "#D4AF37" }}
+                        >
+                          <CreditCard size={18} />
+                          {loadingPayment ? "Processing..." : `Enroll for ₹${course.price.toFixed(2)}`}
+                        </motion.button>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         </section>

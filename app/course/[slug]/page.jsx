@@ -376,15 +376,39 @@ export default function CoursePage() {
                     <p className="text-[#5C7A6E] text-sm mb-1">Assessment</p>
                     <p className="font-semibold text-[#0F3D2E]">20 MCQ Questions (70% to pass)</p>
                   </div>
-                  <motion.button
-                    onClick={handleStartAssessment}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full py-3 rounded-xl font-semibold text-white text-center"
-                    style={{ background: "#0F3D2E" }}
-                  >
-                    Start Assessment
-                  </motion.button>
+                  {(() => {
+                    const completedIndices = new Set(
+                      (user.completedModules || [])
+                        .filter(m => m.startsWith(`${slug}_module_`))
+                        .map(m => m.split('_').pop())
+                    );
+                    const completedCount = completedIndices.size;
+                    const totalModules = course.modules.length;
+                    const allCompleted = completedCount >= totalModules;
+                    
+                    return (
+                      <div className="space-y-3">
+                        {!allCompleted && (
+                          <p className="text-xs text-[#BC6C25] font-medium bg-[#FEFAE0] p-2 rounded-lg border border-[#E9EDC9]">
+                             Complete all {totalModules} modules to unlock the assessment. (Progress: {completedCount}/{totalModules})
+                          </p>
+                        )}
+                        <motion.button
+                          onClick={handleStartAssessment}
+                          disabled={!allCompleted}
+                          whileHover={allCompleted ? { scale: 1.05 } : {}}
+                          whileTap={allCompleted ? { scale: 0.95 } : {}}
+                          className={`w-full py-3 rounded-xl font-semibold text-center transition-all ${
+                            allCompleted 
+                              ? "bg-[#0F3D2E] text-white cursor-pointer" 
+                              : "bg-[#E0EDE8] text-[#A7D7C5] cursor-not-allowed"
+                          }`}
+                        >
+                          {allCompleted ? "Start Assessment" : "Assessment Locked"}
+                        </motion.button>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -405,14 +429,23 @@ export default function CoursePage() {
                       key={i}
                       onClick={() => setActiveModule(i)}
                       whileHover={{ x: 4 }}
-                      className={`w-full text-left p-4 rounded-xl transition-all ${
+                      className={`w-full text-left p-4 rounded-xl transition-all relative ${
                         activeModule === i
                           ? "bg-[#0F3D2E] text-white"
                           : "bg-[#F5F0E8] text-[#0F3D2E] hover:bg-[#E8F0EC]"
                       }`}
                     >
-                      <p className="text-xs tracking-[0.14em] uppercase opacity-70 mb-1">Module {i + 1}</p>
-                      <p className="font-semibold leading-snug">{module.name}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <p className="text-xs tracking-[0.14em] uppercase opacity-70 mb-1">Module {i + 1}</p>
+                          <p className="font-semibold leading-snug">{module.name}</p>
+                        </div>
+                        { (user.completedModules || []).includes(`${slug}_module_${i + 1}`) && (
+                          <div className={activeModule === i ? "text-[#A7D7C5]" : "text-[#2E7D5B]"}>
+                            <CheckCircle size={18} />
+                          </div>
+                        )}
+                      </div>
                     </motion.button>
                   ))}
                 </div>
@@ -451,6 +484,7 @@ export default function CoursePage() {
 
                 <motion.button
                   whileHover={{ scale: 1.02 }}
+                  onClick={() => router.push(`/course/${slug}/module/${activeModule + 1}`)}
                   className="px-6 py-3 rounded-xl font-semibold text-white transition-all"
                   style={{ background: "#0F3D2E" }}
                 >
@@ -461,24 +495,7 @@ export default function CoursePage() {
           </div>
         </section>
 
-        {/* ── CTA SECTION ── */}
-        <section className="py-16 px-6" style={{ background: "#1a4a3a" }}>
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="font-serif-display text-4xl font-bold text-white mb-6">Ready to Test Your Knowledge?</h2>
-            <p className="text-[#A7D7C5] text-lg mb-8 max-w-2xl mx-auto">
-              After completing all modules, take the proctored assessment to earn your certification. You need 70% to pass.
-            </p>
-            <motion.button
-              onClick={handleStartAssessment}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-4 rounded-full font-semibold text-[#0F3D2E] text-lg transition-all"
-              style={{ background: "#D4AF37" }}
-            >
-              Take Assessment Now
-            </motion.button>
-          </div>
-        </section>
+
       </main>
 
       <Footer />

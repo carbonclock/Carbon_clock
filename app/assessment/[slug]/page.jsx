@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Clock, Camera, Mic, AlertTriangle } from "lucide-react";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
 
@@ -787,6 +787,16 @@ export default function AssessmentPage() {
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
+  
+  // Timer & Proctoring State
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const [isTestStarted, setIsTestStarted] = useState(false);
+  const [mediaStream, setMediaStream] = useState(null);
+  const [mediaError, setMediaError] = useState(null);
+  const [showWarning, setShowWarning] = useState(false);
+  const [isRequestingMedia, setIsRequestingMedia] = useState(false);
+  const [showExitModal, setShowExitModal] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -800,6 +810,86 @@ export default function AssessmentPage() {
       setAssessment(assessmentData[slug]);
     }
   }, [slug]);
+
+  // Timer logic
+  useEffect(() => {
+    let timer;
+    if (isTestStarted && !showResults && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleSubmit();
+            return 0;
+          }
+          if (prev === 121) { // 2 minutes left (120s)
+            setShowWarning(true);
+            setTimeout(() => setShowWarning(false), 5000); // Hide warning after 5s
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isTestStarted, showResults, timeLeft]);
+
+  // Attach media stream to video element
+  useEffect(() => {
+    if (videoRef.current && mediaStream) {
+      videoRef.current.srcObject = mediaStream;
+    }
+  }, [mediaStream]);
+
+  // Cleanup media stream on unmount or stream change
+  useEffect(() => {
+    return () => {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => {
+          track.stop();
+          console.log(`Stopped track: ${track.kind}`);
+        });
+      }
+    };
+  }, [mediaStream]);
+
+  // AUTO-OFF: Stop camera immediately when results page appears
+  useEffect(() => {
+    if (showResults && mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      setMediaStream(null);
+      console.log("Assessment ended: Webcam and Mic automatically deactivated.");
+    }
+  }, [showResults, mediaStream]);
+
+  const startTest = async () => {
+    // Ensure fresh start: clean up any existing stream before requesting new one
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      setMediaStream(null);
+    }
+
+    setIsRequestingMedia(true);
+    setMediaError(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: true, 
+        audio: true 
+      });
+      setMediaStream(stream);
+      setIsTestStarted(true);
+    } catch (err) {
+      console.error("Media error:", err);
+      setMediaError("Webcam and Microphone access are required to start the assessment for proctoring purposes.");
+    } finally {
+      setIsRequestingMedia(false);
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -857,120 +947,396 @@ export default function AssessmentPage() {
         .font-serif-display { font-family: 'DM Serif Display', serif; }
       `}</style>
 
-      <DashboardNavbar user={user} onLogout={handleLogout} />
+      {showResults && <DashboardNavbar user={user} onLogout={handleLogout} />}
 
-      <main className="flex-1">
-        {!showResults ? (
+      <main className="flex-1 relative">
+        {/* Floating Camera Preview */}
+        {isTestStarted && !showResults && mediaStream && (
+          <div className="fixed bottom-6 right-6 w-48 h-36 bg-black rounded-2xl overflow-hidden border-2 border-[#D4AF37] shadow-2xl z-50">
+            <video 
+              autoPlay 
+              muted 
+              playsInline 
+              ref={videoRef}
+              className="w-full h-full object-cover scale-x-[-1]"
+            />
+            <div className="absolute top-2 left-2 flex gap-1">
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              <span className="text-[10px] text-white font-bold tracking-tighter uppercase opacity-80">Live Proctoring</span>
+            </div>
+          </div>
+        )}
+
+        {/* 2-Minute Warning Overlay */}
+        <AnimatePresence>
+          {showWarning && (
+            <motion.div 
+              initial={{ opacity: 0, y: -50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              className="fixed top-24 left-1/2 -translate-x-1/2 z-[60] bg-orange-500 text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-3 font-semibold"
+            >
+              <AlertTriangle size={20} />
+              <span>Only 2 minutes remaining! Your test will auto-submit.</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Exit Test Confirmation Modal */}
+        <AnimatePresence>
+          {showExitModal && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-[#0F3D2E]/80 backdrop-blur-sm"
+            >
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-[#E0EDE8] text-center"
+              >
+                <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <AlertTriangle size={40} className="text-red-500" />
+                </div>
+                <h3 className="font-serif-display text-2xl font-bold text-[#0F3D2E] mb-4">
+                  Exit Assessment?
+                </h3>
+                <p className="text-[#5C7A6E] mb-8 leading-relaxed">
+                  Are you sure you want to exit the test? <br />
+                  <span className="font-bold text-red-600">Once you exit, you can't take the test again.</span>
+                </p>
+                <div className="flex flex-col gap-3">
+                  <motion.button
+                    onClick={() => {
+                      if (mediaStream) mediaStream.getTracks().forEach(track => track.stop());
+                      router.push(`/course/${slug}`);
+                    }}
+                    className="w-full py-4 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Yes, Exit Test
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setShowExitModal(false)}
+                    className="w-full py-4 bg-[#F5F0E8] text-[#0F3D2E] rounded-2xl font-bold hover:bg-[#E0EDE8] transition-colors"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    No, Continue Test
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {!isTestStarted && !showResults ? (
+          <section className="py-20 px-6 flex-1 flex items-center justify-center relative bg-[#F5F0E8] overflow-hidden">
+            {/* Background decorative elements */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#0F3D2E]/5 rounded-full blur-3xl -mr-64 -mt-64" />
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#C29231]/5 rounded-full blur-3xl -ml-40 -mb-40" />
+
+            <div className="max-w-4xl w-full mx-auto relative z-10">
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/80 backdrop-blur-xl rounded-[40px] p-8 md:p-12 shadow-[0_32px_64px_-16px_rgba(15,61,46,0.12)] border border-white"
+              >
+                <div className="text-center mb-12">
+                  <div className="inline-block px-4 py-1.5 rounded-full bg-[#0F3D2E]/5 text-[#0F3D2E] text-[12px] font-bold uppercase tracking-wider mb-4 border border-[#0F3D2E]/10">
+                    Secure Examination Environment
+                  </div>
+                  <h2 className="font-serif-display text-4xl md:text-5xl font-bold text-[#0F3D2E] mb-4">
+                    Assessment Instructions
+                  </h2>
+                  <p className="text-[#5C7A6E] text-sm max-w-xl mx-auto">
+                    Please read the following guidelines carefully. This assessment is proctored to ensure academic integrity and a fair testing environment for all candidates.
+                  </p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-10 mb-12">
+                  {/* Left Column: Requirements */}
+                  <div>
+                    <h3 className="text-[12px] font-bold text-[#C29231] uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#C29231]" />
+                      System Requirements
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        { 
+                          icon: <Clock size={18} />, 
+                          title: "10-Minute Window", 
+                          desc: "Fixed duration. Auto-submission occurs precisely at 00:00." 
+                        },
+                        { 
+                          icon: <Camera size={18} />, 
+                          title: "Biometric Monitoring", 
+                          desc: "Continuous webcam and microphone access is mandatory for session validation." 
+                        },
+                        { 
+                          icon: <CheckCircle size={18} />, 
+                          title: "70% Proficiency", 
+                          desc: "Requires 14 correct responses out of 20 to earn certification." 
+                        }
+                      ].map((item, i) => (
+                        <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/50 border border-[#E0EDE8] hover:border-[#0F3D2E]/20 transition-colors">
+                          <div className="text-[#0F3D2E] shrink-0">{item.icon}</div>
+                          <div>
+                            <h4 className="font-bold text-[#0F3D2E] text-sm mb-1">{item.title}</h4>
+                            <p className="text-[12px] leading-relaxed text-[#5C7A6E]">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Honor Code */}
+                  <div>
+                    <h3 className="text-[12px] font-bold text-[#C29231] uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#C29231]" />
+                      Rules of Conduct
+                    </h3>
+                    <div className="space-y-5">
+                      <div className="p-5 rounded-2xl bg-[#0F3D2E]/[0.02] border border-dashed border-[#0F3D2E]/20">
+                        <ul className="space-y-3">
+                          {[
+                            "No external browser tabs, windows, or resources.",
+                            "Strictly no AI assistance, chatbots, or search engines.",
+                            "Accountability: No collaboration or third-party help.",
+                            "Maintain a clear, well-lit face view at all times.",
+                            "All mobile devices must be silenced and stored away."
+                          ].map((rule, i) => (
+                            <li key={i} className="flex items-start gap-3 text-[13px] text-[#2D4A3E]">
+                              <div className="mt-1.5 w-1 h-1 rounded-full bg-[#0F3D2E] shrink-0" />
+                              {rule}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="p-4 rounded-xl bg-orange-50 border border-orange-100 flex gap-3 text-[12px] text-orange-800 italic">
+                        <AlertTriangle size={16} className="shrink-0" />
+                        Violations will trigger immediate disqualification and session termination.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {mediaError && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mb-8 p-4 bg-red-50 text-red-700 rounded-2xl flex items-center gap-3 border border-red-100 text-xs font-semibold shadow-inner"
+                  >
+                    <AlertTriangle size={18} />
+                    {mediaError}
+                  </motion.div>
+                )}
+
+                <div className="flex flex-col items-center">
+                  <motion.button
+                    onClick={startTest}
+                    disabled={isRequestingMedia}
+                    className="w-full md:w-[320px] py-4 rounded-full bg-[#0F3D2E] text-white font-bold text-lg hover:bg-[#1A4A38] transition-all flex items-center justify-center gap-3 shadow-[0_12px_24px_-8px_rgba(15,61,46,0.3)] disabled:opacity-50"
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {isRequestingMedia ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Initialising...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <span>Confirm & Start Test</span>
+                        <ArrowLeft size={20} className="rotate-180" />
+                      </>
+                    )}
+                  </motion.button>
+                  <p className="mt-4 text-[11px] text-[#5C7A6E] font-medium uppercase tracking-[0.1em]">
+                    Clicking start will initiate proctoring session
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </section>
+        ) : !showResults ? (
           <>
             {/* Header */}
             <section style={{ backgroundColor: assessment.headerBg }} className="py-8 px-6 text-white">
               <div className="max-w-7xl mx-auto">
                 <motion.button
-                  onClick={() => router.back()}
-                  className="flex items-center gap-2 mb-6 text-[#A7D7C5] hover:text-white transition-colors"
+                  onClick={() => setShowExitModal(true)}
+                  className="flex items-center gap-2 mb-6 text-[#FFBABA] hover:text-white transition-colors bg-white/10 px-4 py-1.5 rounded-full border border-white/20"
                   whileHover={{ x: -4 }}
                 >
-                  <ArrowLeft size={18} /> Back
+                  <XCircle size={18} /> Exit Test
                 </motion.button>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[#A7D7C5] text-sm mb-2">{assessment.emoji}</p>
                     <h1 className="font-serif-display text-3xl font-bold">{assessment.title}</h1>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[#A7D7C5] text-sm mb-1">Question {currentQuestion + 1} of {assessment.questions.length}</p>
-                    <div className="w-48 h-2 bg-white/20 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full bg-white"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${((currentQuestion + 1) / assessment.questions.length) * 100}%` }}
-                        transition={{ duration: 0.3 }}
-                      />
+                  <div className="text-right flex items-center gap-6">
+                    <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20">
+                      <Clock size={16} className={timeLeft < 120 ? "text-red-400 animate-pulse" : "text-[#A7D7C5]"} />
+                      <span className={`font-mono font-bold ${timeLeft < 120 ? "text-red-400" : "text-white"}`}>
+                        {formatTime(timeLeft)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="text-[#A7D7C5] text-sm mb-1">Question {currentQuestion + 1} of {assessment.questions.length}</p>
+                      <div className="w-48 h-2 bg-white/20 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-white"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${((currentQuestion + 1) / assessment.questions.length) * 100}%` }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Question */}
-            <section className="py-12 px-6" style={{ background: "#F5F0E8" }}>
-              <div className="max-w-4xl mx-auto">
-                <motion.div
-                  key={currentQuestion}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <h2 className="font-serif-display text-2xl font-bold text-[#0F3D2E] mb-8">
-                    {question.question}
-                  </h2>
-
-                  <div className="space-y-3 mb-10">
-                    {question.options.map((option, i) => (
-                      <motion.button
-                        key={i}
-                        onClick={() => handleAnswer(i)}
-                        className={`w-full p-4 rounded-xl text-left font-medium transition-all border-2 ${
-                          answers[currentQuestion] === i
-                            ? "bg-[#0F3D2E] text-white border-[#0F3D2E]"
-                            : "bg-white text-[#0F3D2E] border-[#E0EDE8] hover:border-[#0F3D2E]"
-                        }`}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-sm font-bold ${
-                              answers[currentQuestion] === i
-                                ? "bg-white border-white text-[#0F3D2E]"
-                                : "border-[#5C7A6E]"
-                            }`}
-                          >
-                            {String.fromCharCode(65 + i)}
-                          </div>
-                          {option}
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-                </motion.div>
-
-                {/* Navigation */}
-                <div className="flex items-center justify-between">
-                  <motion.button
-                    onClick={handlePrevious}
-                    disabled={currentQuestion === 0}
-                    className="px-6 py-2.5 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    style={{
-                      background: currentQuestion === 0 ? "#E0EDE8" : "#0F3D2E",
-                      color: currentQuestion === 0 ? "#5C7A6E" : "white",
-                    }}
-                    whileHover={{ scale: currentQuestion > 0 ? 1.05 : 1 }}
+            {/* Question Section */}
+            <section className="py-12 px-6 flex-1 min-h-0" style={{ background: "#F5F0E8" }}>
+              <div className="max-w-7xl mx-auto grid lg:grid-cols-4 gap-8">
+                {/* Main Question Area */}
+                <div className="lg:col-span-3">
+                  <motion.div
+                    key={currentQuestion}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-[#E0EDE8] min-h-[500px] flex flex-col"
                   >
-                    Previous
-                  </motion.button>
+                    <div className="mb-8">
+                      <div className="flex items-center gap-2 text-[10px] font-bold text-[#C29231] uppercase tracking-[0.2em] mb-4">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#C29231]" />
+                        Question {currentQuestion + 1}
+                      </div>
+                      <h2 className="font-serif-display text-2xl md:text-3xl font-bold text-[#0F3D2E] leading-tight">
+                        {question.question}
+                      </h2>
+                    </div>
 
-                  {currentQuestion === assessment.questions.length - 1 ? (
-                    <motion.button
-                      onClick={handleSubmit}
-                      disabled={!isAnswered}
-                      className="px-8 py-2.5 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all"
-                      style={{ background: "#0F3D2E" }}
-                      whileHover={{ scale: isAnswered ? 1.05 : 1 }}
-                    >
-                      Submit Assessment
-                    </motion.button>
-                  ) : (
-                    <motion.button
-                      onClick={handleNext}
-                      disabled={!isAnswered}
-                      className="px-6 py-2.5 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all"
-                      style={{ background: "#0F3D2E" }}
-                      whileHover={{ scale: isAnswered ? 1.05 : 1 }}
-                    >
-                      Next
-                    </motion.button>
-                  )}
+                    <div className="space-y-4 mb-10 flex-1">
+                      {question.options.map((option, i) => (
+                        <motion.button
+                          key={i}
+                          onClick={() => handleAnswer(i)}
+                          className={`w-full p-5 rounded-2xl text-left font-medium transition-all border-2 relative group ${
+                            answers[currentQuestion] === i
+                              ? "bg-[#0F3D2E] text-white border-[#0F3D2E] shadow-lg shadow-[#0F3D2E]/20"
+                              : "bg-white text-[#0F3D2E] border-[#E0EDE8] hover:border-[#0F3D2E]/30 hover:bg-[#FDFCFB]"
+                          }`}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.99 }}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors ${
+                                answers[currentQuestion] === i
+                                  ? "bg-white border-white text-[#0F3D2E]"
+                                  : "border-[#E0EDE8] text-[#5C7A6E] group-hover:border-[#0F3D2E]/30"
+                              }`}
+                            >
+                              {String.fromCharCode(65 + i)}
+                            </div>
+                            <span className="text-sm md:text-base">{option}</span>
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+
+                    {/* Navigation buttons inside the card */}
+                    <div className="flex items-center justify-between pt-8 border-t border-[#F5F0E8]">
+                      <motion.button
+                        onClick={handlePrevious}
+                        disabled={currentQuestion === 0}
+                        className="px-8 py-3 rounded-full font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all border-2 border-[#0F3D2E] text-[#0F3D2E] hover:bg-[#0F3D2E] hover:text-white"
+                        whileHover={{ scale: currentQuestion > 0 ? 1.05 : 1 }}
+                      >
+                        Previous
+                      </motion.button>
+
+                      {currentQuestion === assessment.questions.length - 1 ? (
+                        <motion.button
+                          onClick={handleSubmit}
+                          disabled={!isAnswered}
+                          className="px-10 py-3 rounded-full font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all shadow-lg"
+                          style={{ background: "#0F3D2E" }}
+                          whileHover={{ scale: isAnswered ? 1.05 : 1 }}
+                        >
+                          Submit Final Assessment
+                        </motion.button>
+                      ) : (
+                        <motion.button
+                          onClick={handleNext}
+                          disabled={!isAnswered}
+                          className="px-10 py-3 rounded-full font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed text-white transition-all shadow-lg"
+                          style={{ background: "#0F3D2E" }}
+                          whileHover={{ scale: isAnswered ? 1.05 : 1 }}
+                        >
+                          Next Question
+                        </motion.button>
+                      )}
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* Question Palette Sidebar */}
+                <div className="lg:col-span-1">
+                  <div className="bg-white rounded-[32px] p-6 shadow-sm border border-[#E0EDE8] sticky top-8">
+                    <h3 className="text-[11px] font-bold text-[#C29231] uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#C29231]" />
+                      Question Palette
+                    </h3>
+
+                    <div className="grid grid-cols-5 gap-3 mb-8">
+                      {assessment.questions.map((_, i) => {
+                        const isAnswered = answers[i] !== undefined;
+                        const isActive = currentQuestion === i;
+                        
+                        return (
+                          <motion.button
+                            key={i}
+                            onClick={() => setCurrentQuestion(i)}
+                            className={`aspect-square rounded-xl flex items-center justify-center text-xs font-bold border-2 transition-all ${
+                              isActive
+                                ? "bg-[#0F3D2E] text-white border-[#0F3D2E] ring-4 ring-[#E0EDE8]"
+                                : isAnswered
+                                ? "bg-white text-[#2E7D5B] border-[#2E7D5B] hover:bg-[#F0F7F4]"
+                                : "bg-white text-[#d64545] border-[#d64545] hover:bg-[#FFF5F5]"
+                            }`}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            {i + 1}
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+
+                    <div className="pt-6 border-t border-[#F5F0E8] space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-md border-2 border-[#2E7D5B] bg-white" />
+                        <span className="text-[12px] text-[#5C7A6E]">Answered</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-md border-2 border-[#d64545] bg-white" />
+                        <span className="text-[12px] text-[#5C7A6E]">Not Answered</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-md border-2 border-[#0F3D2E] bg-[#0F3D2E]" />
+                        <span className="text-[12px] text-[#5C7A6E]">Current Question</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
@@ -1050,7 +1416,7 @@ export default function AssessmentPage() {
         )}
       </main>
 
-      <Footer />
+      {showResults && <Footer />}
     </div>
   );
 }
