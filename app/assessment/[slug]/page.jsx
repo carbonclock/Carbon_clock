@@ -3,9 +3,10 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, CheckCircle, XCircle, Clock, Camera, Mic, AlertTriangle } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Clock, Camera, Mic, AlertTriangle, Lock } from "lucide-react";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
+import AssessmentSuccess from "@/components/AssessmentSuccess";
 
 /* ── Sample MCQ Questions ── */
 const assessmentData = {
@@ -811,6 +812,16 @@ export default function AssessmentPage() {
     }
   }, [slug]);
 
+  // Check if assessment is already passed
+  useEffect(() => {
+    if (user && slug) {
+      if (user.passedAssessments?.includes(slug)) {
+        // Redirect to course page or dashboard if already passed
+        router.push(`/course/${slug}`);
+      }
+    }
+  }, [user, slug, router]);
+
   // Timer logic
   useEffect(() => {
     let timer;
@@ -927,6 +938,33 @@ export default function AssessmentPage() {
     const calculatedScore = (correctCount / assessment.questions.length) * 100;
     setScore(calculatedScore);
     setShowResults(true);
+
+    if (calculatedScore >= 70) {
+      handlePassAssessment();
+    }
+  };
+
+  const handlePassAssessment = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/course/pass-assessment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ courseSlug: slug })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Update local user data
+        const updatedUser = { ...user, passedAssessments: data.passedAssessments };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+    } catch (error) {
+      console.error("Failed to save pass status:", error);
+    }
   };
 
   const handleGoToDashboard = () => {
@@ -1346,28 +1384,15 @@ export default function AssessmentPage() {
             {/* Results Section */}
             <section className="py-20 px-6 flex-1 flex items-center" style={{ background: "#F5F0E8" }}>
               <div className="max-w-4xl w-full mx-auto">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="bg-white rounded-2xl p-12 text-center border border-[#E0EDE8]"
-                  style={{ boxShadow: "0 8px 32px rgba(26, 74, 58, 0.12)" }}
-                >
                   {passed ? (
-                    <>
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.6 }}
-                        className="mb-6"
-                      >
-                        <CheckCircle size={80} className="mx-auto text-[#2E7D5B]" />
-                      </motion.div>
-                      <h2 className="font-serif-display text-4xl font-bold text-[#0F3D2E] mb-2">
-                        Congratulations!
-                      </h2>
-                      <p className="text-[#5C7A6E] text-lg mb-6">You passed the assessment!</p>
-                    </>
+                    <AssessmentSuccess 
+                      score={score} 
+                      totalQuestions={assessment.questions.length} 
+                      courseTitle={assessment.title} 
+                    />
                   ) : (
-                    <>
+                    <div className="bg-white rounded-2xl p-12 text-center border border-[#E0EDE8]"
+                         style={{ boxShadow: "0 8px 32px rgba(26, 74, 58, 0.12)" }}>
                       <motion.div
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ duration: 0.6 }}
@@ -1379,37 +1404,25 @@ export default function AssessmentPage() {
                         Keep Trying
                       </h2>
                       <p className="text-[#5C7A6E] text-lg mb-6">You need 70% to pass. Review the course materials and try again!</p>
-                    </>
+                      
+                      <div className="mb-8">
+                        <p className="text-5xl font-bold text-[#D4AF37] mb-2">{score.toFixed(1)}%</p>
+                        <p className="text-[#5C7A6E]">
+                          {Object.values(answers).reduce((count, answer, i) => count + (answer === assessment.questions[i].correctAnswer ? 1 : 0), 0)} out of {assessment.questions.length} correct
+                        </p>
+                      </div>
+
+                      <motion.button
+                        onClick={handleGoToDashboard}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="px-8 py-3 rounded-full font-semibold text-white"
+                        style={{ background: "#0F3D2E" }}
+                      >
+                        Return to Dashboard
+                      </motion.button>
+                    </div>
                   )}
-
-                  <div className="mb-8">
-                    <p className="text-5xl font-bold text-[#D4AF37] mb-2">{score.toFixed(1)}%</p>
-                    <p className="text-[#5C7A6E]">
-                      {Object.values(answers).reduce((count, answer, i) => count + (answer === assessment.questions[i].correctAnswer ? 1 : 0), 0)} out of {assessment.questions.length} correct
-                    </p>
-                  </div>
-
-                  {passed && (
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-8 py-4 rounded-full font-semibold text-[#0F3D2E] text-lg mb-6"
-                      style={{ background: "#D4AF37" }}
-                    >
-                      Download Certificate
-                    </motion.button>
-                  )}
-
-                  <motion.button
-                    onClick={handleGoToDashboard}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-8 py-3 rounded-full font-semibold text-white"
-                    style={{ background: "#0F3D2E" }}
-                  >
-                    Return to Dashboard
-                  </motion.button>
-                </motion.div>
               </div>
             </section>
           </>

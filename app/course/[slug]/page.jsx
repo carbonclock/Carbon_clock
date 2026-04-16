@@ -385,26 +385,32 @@ export default function CoursePage() {
                     const completedCount = completedIndices.size;
                     const totalModules = course.modules.length;
                     const allCompleted = completedCount >= totalModules;
+                    const alreadyPassed = (user.passedAssessments || []).includes(slug);
                     
                     return (
                       <div className="space-y-3">
-                        {!allCompleted && (
-                          <p className="text-xs text-[#BC6C25] font-medium bg-[#FEFAE0] p-2 rounded-lg border border-[#E9EDC9]">
+                        {!allCompleted && !alreadyPassed && (
+                          <p className="text-xs text-[#BC6C25] font-medium bg-[#FEFAE0] p-2 rounded-lg border border-[#E0EDE8]">
                              Complete all {totalModules} modules to unlock the assessment. (Progress: {completedCount}/{totalModules})
+                          </p>
+                        )}
+                        {alreadyPassed && (
+                          <p className="text-xs text-[#2E7D5B] font-medium bg-[#E6F2ED] p-2 rounded-lg border border-[#A7D7C5]">
+                             You have already successfully cleared this assessment!
                           </p>
                         )}
                         <motion.button
                           onClick={handleStartAssessment}
-                          disabled={!allCompleted}
-                          whileHover={allCompleted ? { scale: 1.05 } : {}}
-                          whileTap={allCompleted ? { scale: 0.95 } : {}}
+                          disabled={!allCompleted || alreadyPassed}
+                          whileHover={allCompleted && !alreadyPassed ? { scale: 1.05 } : {}}
+                          whileTap={allCompleted && !alreadyPassed ? { scale: 0.95 } : {}}
                           className={`w-full py-3 rounded-xl font-semibold text-center transition-all ${
-                            allCompleted 
+                            allCompleted && !alreadyPassed
                               ? "bg-[#0F3D2E] text-white cursor-pointer" 
                               : "bg-[#E0EDE8] text-[#A7D7C5] cursor-not-allowed"
                           }`}
                         >
-                          {allCompleted ? "Start Assessment" : "Assessment Locked"}
+                          {alreadyPassed ? "Assessment Cleared" : allCompleted ? "Start Assessment" : "Assessment Locked"}
                         </motion.button>
                       </div>
                     );

@@ -105,21 +105,24 @@ export default function DashboardNavbar({ user, onLogout }) {
                   </div>
                   {[
                     { icon: <User size={15} />, label: "My Profile", href: "#" },
-                    { icon: <Award size={15} />, label: "My Certifications", href: "#" },
+                    { icon: <Award size={15} />, label: "My Certifications", href: "/dashboard/my-certifications" },
                     { icon: <Settings size={15} />, label: "Settings", href: "#" },
                   ].map((item, i) => (
-                    <motion.a
+                    <motion.button
                       key={item.label}
-                      href={item.href}
+                      onClick={() => {
+                        if (item.href !== "#") router.push(item.href);
+                        setDropdownOpen(false);
+                      }}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.05 }}
                       whileHover={{ x: 4, backgroundColor: "#F4F8F6" }}
-                      className="flex items-center gap-3 px-4 py-3 text-sm text-[#355F53] hover:text-[#0F3D2E] transition-colors cursor-pointer"
+                      className="w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-[#355F53] hover:text-[#0F3D2E] transition-colors cursor-pointer"
                     >
                       <span className="text-[#2E7D5B]">{item.icon}</span>
                       {item.label}
-                    </motion.a>
+                    </motion.button>
                   ))}
                   <div className="border-t border-[#E6F2ED]">
                     <motion.button

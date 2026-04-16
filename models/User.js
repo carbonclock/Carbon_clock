@@ -31,6 +31,11 @@ const UserSchema = new mongoose.Schema({
     default: [],
   },
 
+  passedAssessments: {
+    type: [String], // Format: "course_slug"
+    default: [],
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,
