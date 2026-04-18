@@ -1,9 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import ReviewModal from "./ReviewModal";
+import { Plus } from "lucide-react";
 
-const testimonials = [
+const initialTestimonials = [
   {
     name: "Priya Sharma",
     role: "Sustainability Analyst",
@@ -36,8 +38,13 @@ const testimonials = [
   },
 ];
 
-/* Triple the cards so loop is seamless */
-const loopCards = [...testimonials, ...testimonials, ...testimonials];
+const AVATAR_COLORS = [
+  "bg-[#2E7D5B]",
+  "bg-[#0F3D2E]",
+  "bg-[#355F53]",
+  "bg-[#1A4A38]",
+  "bg-[#2D5F52]",
+];
 
 const FadeUp = ({ children, delay = 0, className = "" }) => {
   const ref = useRef(null);
@@ -105,6 +112,31 @@ function TestimonialCard({ t }) {
 }
 
 export default function Testimonials() {
+  const [reviews, setReviews] = useState(initialTestimonials);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddReview = (newReview) => {
+    const initials = newReview.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+
+    const randomColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+
+    const reviewWithStyles = {
+      ...newReview,
+      initials,
+      color: randomColor,
+    };
+
+    setReviews([reviewWithStyles, ...reviews]);
+  };
+
+  /* Triple the cards so loop is seamless */
+  const loopCards = [...reviews, ...reviews, ...reviews];
+
   return (
     <section className="relative bg-[#F4F8F6] py-16 md:py-20 lg:py-24 overflow-hidden">
       <div className="max-w-300 mx-auto p-4 md:p-6 lg:p-4">
@@ -186,6 +218,27 @@ export default function Testimonials() {
             ))}
           </div>
         </div>
+
+        {/* Add Review Button */}
+        <FadeUp delay={0.4}>
+          <div className="mt-12 md:mt-16 flex justify-center">
+            <motion.button
+              onClick={() => setIsModalOpen(true)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="group relative flex items-center gap-2 px-8 py-4 bg-white border-2 border-[#2E7D5B]/30 rounded-2xl font-bold text-[#0F3D2E] hover:border-[#2E7D5B] hover:bg-[#F4F8F6] transition-all shadow-md hover:shadow-lg"
+            >
+              <Plus size={20} className="text-[#2E7D5B] group-hover:rotate-90 transition-transform duration-300" />
+              Add Review
+            </motion.button>
+          </div>
+        </FadeUp>
+
+        <ReviewModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          onSubmit={handleAddReview} 
+        />
       </div>
     </section>
   );

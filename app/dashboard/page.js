@@ -18,7 +18,7 @@ const courses = [
     level: "Foundational",
     levelColor: "#1F4E3A",
     headerBg: "#1A3D2B",
-    price: 588.82, // 499 + 18% GST
+    price: 599, // Updated price
     desc: "Understand the climate system, drivers of change, and evidence-based global solutions from policy to technology.",
     modules: [
       "The Climate System & Greenhouse Effect",
@@ -35,7 +35,7 @@ const courses = [
     level: "Intermediate",
     levelColor: "#1B3050",
     headerBg: "#1B3A5C",
-    price: 942.82, // 799 + 18% GST
+    price: 999, // Updated price
     desc: "Master the principles and methodologies for measuring, reporting, and verifying corporate carbon footprints.",
     modules: [
       "Foundations of Carbon Accounting",
@@ -52,7 +52,7 @@ const courses = [
     level: "Intermediate-Advanced",
     levelColor: "#3D2E00",
     headerBg: "#4A3800",
-    price: 1178.82, // 999 + 18% GST
+    price: 1200, // Updated price
     desc: "Deep-dive into greenhouse gas accounting frameworks, IPCC categories, and corporate standard implementation.",
     modules: [
       "GHG Protocol: Corporate Standard",
@@ -69,7 +69,7 @@ const courses = [
     level: "Advanced",
     levelColor: "#2D1B5E",
     headerBg: "#3B1F72",
-    price: 1178.82, // 999 + 18% GST
+    price: 1, // Temporary price for live testing
     desc: "Learn to quantify environmental impacts of products and systems from cradle to grave using ISO 14040/44 standards.",
     modules: [
       "LCA Fundamentals & ISO Framework",
@@ -86,7 +86,7 @@ const courses = [
     level: "Foundational-Intermediate",
     levelColor: "#0F3D2E",
     headerBg: "#1A4A38",
-    price: 942.82, // 799 + 18% GST
+    price: 999, // Updated price
     desc: "Build a solid foundation in sustainability thinking, ESG frameworks, and the evolving corporate responsibility landscape.",
     modules: [
       "Sustainability Principles & the SDGs",
@@ -120,11 +120,13 @@ export default function DashboardPage() {
   const heroRef = useRef(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [loadingPayment, setLoadingPayment] = useState(false);
+  const [couponInputs, setCouponInputs] = useState({}); // { courseSlug: string }
+  const [appliedDiscounts, setAppliedDiscounts] = useState({}); // { courseSlug: boolean }
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) { router.push("/login"); return; }
-    
+
     // Fetch latest user profile to sync purchased courses
     const fetchProfile = async () => {
       try {
@@ -177,32 +179,44 @@ export default function DashboardPage() {
     router.push(`/assessment/${slug}`);
   };
 
+  const handleApplyCoupon = (slug) => {
+    const input = couponInputs[slug]?.trim().toUpperCase();
+    if (input === "CARBON") {
+      setAppliedDiscounts({ ...appliedDiscounts, [slug]: true });
+      alert("Coupon 'CARBON' applied successfully! 30% discount added.");
+    } else {
+      alert("Invalid coupon code.");
+    }
+  };
+
   const handlePayment = async (course) => {
     setLoadingPayment(true);
     try {
       const token = localStorage.getItem("token");
-      
+      const isDiscounted = appliedDiscounts[course.slug];
+      const finalAmount = isDiscounted ? Math.round(course.price * 0.7) : course.price;
+
       // 1. Create Order
       const res = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: course.price,
+          amount: finalAmount,
           courseSlug: course.slug,
           userId: user._id || user.id,
         }),
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.message || "Failed to create order");
       }
-      
+
       const order = await res.json();
 
       // 2. Open Razorpay Checkout
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_YOUR_KEY_ID",
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         name: "Carbon Clock",
@@ -225,13 +239,13 @@ export default function DashboardPage() {
 
           if (verifyData.success) {
             // Update local state and localStorage without full reload
-            const updatedUser = { 
-              ...user, 
-              purchasedCourses: [...(user.purchasedCourses || []), course.slug] 
+            const updatedUser = {
+              ...user,
+              purchasedCourses: [...(user.purchasedCourses || []), course.slug]
             };
             setUser(updatedUser);
             localStorage.setItem("user", JSON.stringify(updatedUser));
-            
+
             alert("Payment successful! Course access granted.");
           } else {
             alert("Payment verification failed.");
@@ -410,7 +424,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
               {courses.map((course, i) => {
                 const isPurchased = user?.purchasedCourses?.includes(course.slug);
-                
+
                 return (
                   <motion.div
                     key={course.id}
@@ -456,7 +470,7 @@ export default function DashboardPage() {
                           </li>
                         ))}
                       </ul>
-                      
+
                       {isPurchased ? (
                         <motion.button
                           whileHover={{ scale: 1.03 }}
@@ -468,17 +482,45 @@ export default function DashboardPage() {
                           Explore Course
                         </motion.button>
                       ) : (
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          disabled={loadingPayment}
-                          onClick={() => handlePayment(course)}
-                          className="w-full py-3.5 rounded-xl font-bold text-[#0F3D2E] text-base cursor-pointer transition-all flex items-center justify-center gap-2"
-                          style={{ background: "#D4AF37" }}
-                        >
-                          <CreditCard size={18} />
-                          {loadingPayment ? "Processing..." : `Enroll for ₹${course.price.toFixed(2)}`}
-                        </motion.button>
+                        <div className="space-y-4">
+                          {/* Coupon Section */}
+                          {!appliedDiscounts[course.slug] ? (
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                placeholder="Coupon Code"
+                                value={couponInputs[course.slug] || ""}
+                                onChange={(e) => setCouponInputs({ ...couponInputs, [course.slug]: e.target.value })}
+                                className="flex-1 px-3 py-2 text-xs border border-[#E0EDE8] rounded-lg focus:outline-none focus:border-[#2E7D5B]"
+                              />
+                              <button
+                                onClick={() => handleApplyCoupon(course.slug)}
+                                className="px-3 py-2 text-xs font-bold text-[#2E7D5B] bg-[#E6F2ED] rounded-lg hover:bg-[#D8EAE2] transition-colors"
+                              >
+                                Apply
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-between px-3 py-2 bg-[#E6F2ED] rounded-lg border border-[#A7D7C5]">
+                              <span className="text-[10px] font-bold text-[#2E7D5B] uppercase tracking-wider">Coupon Applied: CARBON</span>
+                              <span className="text-[10px] font-bold text-[#2E7D5B]">-30%</span>
+                            </div>
+                          )}
+
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            disabled={loadingPayment}
+                            onClick={() => handlePayment(course)}
+                            className="w-full py-3.5 rounded-xl font-bold text-[#0F3D2E] text-base cursor-pointer transition-all flex items-center justify-center gap-2"
+                            style={{ background: "#D4AF37" }}
+                          >
+                            <CreditCard size={18} />
+                            {loadingPayment ? "Processing..." : (
+                              `Enroll for ₹${appliedDiscounts[course.slug] ? Math.round(course.price * 0.7) : Math.round(course.price)}`
+                            )}
+                          </motion.button>
+                        </div>
                       )}
                     </div>
                   </motion.div>
