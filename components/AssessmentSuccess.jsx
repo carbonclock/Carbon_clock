@@ -40,7 +40,7 @@ export default function AssessmentSuccess({ score, totalQuestions, courseTitle }
             <p className="text-[#5C7A6E] text-base mb-8 max-w-xl mx-auto leading-relaxed">
               You have cleared the assessment for <br />
               <span className="font-bold text-[#0F3D2E] text-lg">{courseTitle}</span>! <br />
-              <span className="text-sm">Your certificate will be issued shortly. You can monitor its status on your certifications page.</span>
+              <span className="text-sm">Your official certificate is being processed and will be <span className="font-bold text-[#2E7D5B]">unlocked in 1 hour</span>. You can track its status in your dashboard.</span>
             </p>
           </motion.div>
 

@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Award, ArrowLeft, Download, ExternalLink, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
+import CertificateGenerator from "@/components/CertificateGenerator";
 
 export default function MyCertificationsPage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
 
+  const [refresh, setRefresh] = useState(0);
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     const userData = localStorage.getItem("user");
@@ -23,6 +27,12 @@ export default function MyCertificationsPage() {
     } catch {
       router.push("/login");
     }
+
+    const timer = setInterval(() => {
+      setRefresh(prev => prev + 1);
+    }, 1000);
+    
+    return () => clearInterval(timer);
   }, [router]);
 
   const handleLogout = () => {
@@ -34,7 +44,21 @@ export default function MyCertificationsPage() {
 
   if (!user) return null;
 
-  const passedCourses = user.passedAssessments || [];
+  const certificates = user.certificates || [];
+
+  const getTimeRemaining = (completedAt) => {
+    // Lock for 1 hour after completion
+    const UNLOCK_DURATION = 1 * 60 * 60 * 1000;
+    const unlockTime = new Date(completedAt).getTime() + UNLOCK_DURATION;
+    const remaining = unlockTime - Date.now();
+    return remaining > 0 ? remaining : 0;
+  };
+
+  const formatCountdown = (ms) => {
+    const mins = Math.floor(ms / 60000);
+    const secs = Math.floor((ms % 60000) / 1000);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F5F0E8]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -65,57 +89,89 @@ export default function MyCertificationsPage() {
                 Manage and view your earned climate credentials.
               </p>
             </div>
-            
+
             <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-[#E0EDE8] shadow-sm">
               <Award className="text-[#D4AF37]" size={20} />
               <span className="text-sm font-bold text-[#0F3D2E]">
-                {passedCourses.length} Certificates Earned
+                {certificates.length} Certificates Earned
               </span>
             </div>
           </div>
 
           {/* Certificates Grid */}
-          {passedCourses.length > 0 ? (
+          {certificates.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {passedCourses.map((courseSlug, index) => (
-                <motion.div
-                  key={courseSlug}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -4 }}
-                  className="bg-white rounded-3xl p-6 border border-[#E0EDE8] shadow-sm flex flex-col group relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#E6F2ED] rounded-full blur-2xl -mr-12 -mt-12 opacity-50" />
-                  
-                  <div className="mb-6 relative z-10">
-                    <div className="w-12 h-12 bg-[#F5F0E8] rounded-2xl flex items-center justify-center text-[#2E7D5B] mb-4 group-hover:bg-[#E6F2ED] transition-colors">
-                      <Award size={24} />
-                    </div>
-                    <h3 className="font-serif-display text-xl font-bold text-[#0F3D2E] leading-tight mb-2 uppercase tracking-tight">
-                      {courseSlug.split("-").join(" ")}
-                    </h3>
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-[#2E7D5B] uppercase tracking-wider">
-                      <ShieldCheck size={12} />
-                      Verified by Carbon Clock
-                    </div>
-                  </div>
+              {certificates.map((cert, index) => {
+                const remaining = getTimeRemaining(cert.completedAt);
+                const isLocked = remaining > 0;
 
-                  <div className="mt-auto space-y-3 relative z-10">
-                    <button className="w-full py-2.5 rounded-xl bg-[#0F3D2E] text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#1A4A38] transition-all shadow-md">
-                      <Download size={14} />
-                      Download PDF
-                    </button>
-                    <button className="w-full py-2.5 rounded-xl bg-white text-[#0F3D2E] text-xs font-bold border border-[#E0EDE8] flex items-center justify-center gap-2 hover:bg-[#F5F0E8] transition-all">
-                      <ExternalLink size={14} />
-                      View Online
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
+                return (
+                  <motion.div
+                    key={cert.certificateId}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={!isLocked ? { y: -4 } : {}}
+                    className={`bg-white rounded-3xl p-6 border border-[#E0EDE8] shadow-sm flex flex-col group relative overflow-hidden ${isLocked ? "opacity-90" : ""}`}
+                  >
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#E6F2ED] rounded-full blur-2xl -mr-12 -mt-12 opacity-50" />
+
+                    <div className="mb-6 relative z-10">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 transition-colors ${isLocked ? "bg-gray-100 text-gray-400" : "bg-[#F5F0E8] text-[#2E7D5B] group-hover:bg-[#E6F2ED]"}`}>
+                        <Award size={24} />
+                      </div>
+                      <h3 className="font-serif-display text-xl font-bold text-[#0F3D2E] leading-tight mb-2 uppercase tracking-tight">
+                        {cert.courseTitle}
+                      </h3>
+                      <div className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider ${isLocked ? "text-orange-500" : "text-[#2E7D5B]"}`}>
+                        {isLocked ? (
+                          <>
+                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                            Unlocking in {formatCountdown(remaining)}
+                          </>
+                        ) : (
+                          <>
+                            <ShieldCheck size={12} />
+                            Verified by Carbon Clock
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-auto space-y-3 relative z-10">
+                      {isLocked ? (
+                        <div className="w-full py-3 px-4 rounded-xl bg-gray-50 border border-gray-100 text-gray-400 text-[10px] text-center font-medium leading-relaxed">
+                          Your certificate is being securely generated. <br /> Check back soon!
+                        </div>
+                      ) : (
+                        <>
+                          <CertificateGenerator
+                            userName={user.name}
+                            courseName={cert.courseTitle}
+                            issueDate={new Date(cert.issueDate).toLocaleDateString("en-US", {
+                              month: "long",
+                              day: "2-digit",
+                              year: "numeric"
+                            })}
+                            certificateId={cert.certificateId}
+                          />
+                          <Link 
+                            href={`/certificate/${cert.certificateId}`}
+                            target="_blank"
+                            className="w-full py-2.5 rounded-xl bg-white text-[#0F3D2E] text-xs font-bold border border-[#E0EDE8] flex items-center justify-center gap-2 hover:bg-[#F5F0E8] transition-all"
+                          >
+                            <ExternalLink size={14} />
+                            View Online
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           ) : (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="bg-white rounded-[32px] p-12 text-center border border-[#E0EDE8] shadow-sm"

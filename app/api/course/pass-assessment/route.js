@@ -9,9 +9,9 @@ export async function POST(req) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { courseSlug } = await req.json();
-    if (!courseSlug) {
-      return Response.json({ error: "Missing courseSlug" }, { status: 400 });
+    const { courseSlug, courseTitle } = await req.json();
+    if (!courseSlug || !courseTitle) {
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     await connectDB();
@@ -24,12 +24,26 @@ export async function POST(req) {
     // Add course to passedAssessments if not already there
     if (!user.passedAssessments.includes(courseSlug)) {
       user.passedAssessments.push(courseSlug);
+      
+      // Generate a simple certificate ID
+      const certificateId = `CC-${Math.random().toString(36).substring(2, 8).toUpperCase()}-${Date.now().toString().slice(-4)}`;
+      
+      // Add to certificates array
+      user.certificates.push({
+        courseSlug,
+        courseTitle,
+        completedAt: new Date(),
+        issueDate: new Date(),
+        certificateId
+      });
+
       await user.save();
     }
 
     return Response.json({ 
       success: true, 
-      passedAssessments: user.passedAssessments 
+      passedAssessments: user.passedAssessments,
+      certificates: user.certificates
     });
   } catch (error) {
     console.error("Pass assessment error:", error);

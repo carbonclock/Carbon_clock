@@ -953,12 +953,19 @@ export default function AssessmentPage() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ courseSlug: slug })
+        body: JSON.stringify({ 
+          courseSlug: slug,
+          courseTitle: assessment.title 
+        })
       });
       const data = await res.json();
       if (data.success) {
         // Update local user data
-        const updatedUser = { ...user, passedAssessments: data.passedAssessments };
+        const updatedUser = { 
+          ...user, 
+          passedAssessments: data.passedAssessments,
+          certificates: data.certificates 
+        };
         setUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
       }

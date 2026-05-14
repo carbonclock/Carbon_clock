@@ -3,8 +3,9 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Lock, Unlock, CreditCard } from "lucide-react";
+import { ArrowRight, Lock, Unlock, CreditCard, Award } from "lucide-react";
 import Script from "next/script";
+import Link from "next/link";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
 
@@ -69,7 +70,7 @@ const courses = [
     level: "Advanced",
     levelColor: "#2D1B5E",
     headerBg: "#3B1F72",
-    price: 1, // Temporary price for live testing
+    price: 1200, // Updated price
     desc: "Learn to quantify environmental impacts of products and systems from cradle to grave using ISO 14040/44 standards.",
     modules: [
       "LCA Fundamentals & ISO Framework",
@@ -122,6 +123,15 @@ export default function DashboardPage() {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [couponInputs, setCouponInputs] = useState({}); // { courseSlug: string }
   const [appliedDiscounts, setAppliedDiscounts] = useState({}); // { courseSlug: boolean }
+
+  const [refresh, setRefresh] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRefresh(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -379,14 +389,12 @@ export default function DashboardPage() {
               >
                 Explore Courses <ArrowRight size={16} />
               </motion.button>
-              <motion.button
-                onClick={() => document.getElementById("how-works-section").scrollIntoView({ behavior: "smooth" })}
-                className="px-7 py-3.5 rounded-full font-semibold text-white border border-[#A7D7C5]/50 cursor-pointer transition-all hover:border-[#A7D7C5]"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <Link
+                href="/dashboard/my-certifications"
+                className="px-7 py-3.5 rounded-full font-semibold text-white border border-[#A7D7C5]/50 cursor-pointer transition-all hover:border-[#A7D7C5] flex items-center justify-center"
               >
                 View Certifications
-              </motion.button>
+              </Link>
             </motion.div>
 
             <motion.div
@@ -472,15 +480,54 @@ export default function DashboardPage() {
                       </ul>
 
                       {isPurchased ? (
-                        <motion.button
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                          onClick={() => handleExploreCourse(course.slug)}
-                          className="w-full py-2.5 rounded-xl font-semibold text-white text-sm cursor-pointer transition-all text-center"
-                          style={{ background: "#0F3D2E" }}
-                        >
-                          Explore Course
-                        </motion.button>
+                        <div className="space-y-3">
+                          <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => handleExploreCourse(course.slug)}
+                            className="w-full py-2.5 rounded-xl font-semibold text-white text-sm cursor-pointer transition-all text-center"
+                            style={{ background: "#0F3D2E" }}
+                          >
+                            Explore Course
+                          </motion.button>
+                          
+                          {user?.passedAssessments?.includes(course.slug) && (
+                            (() => {
+                              const cert = user.certificates?.find(c => c.courseSlug === course.slug);
+                              if (!cert) return null;
+                              
+                              const UNLOCK_DURATION = 1 * 60 * 60 * 1000;
+                              const remaining = new Date(cert.completedAt).getTime() + UNLOCK_DURATION - Date.now();
+                              const isLocked = remaining > 0;
+
+                              if (isLocked) {
+                                const mins = Math.floor(remaining / 60000);
+                                const secs = Math.floor((remaining % 60000) / 1000);
+                                return (
+                                  <div className="w-full py-2.5 rounded-xl font-semibold text-orange-500 text-[10px] border border-orange-200 bg-orange-50 text-center flex flex-col items-center justify-center">
+                                    <div className="flex items-center gap-1">
+                                      <Lock size={10} />
+                                      Unlocking in {mins}:{secs.toString().padStart(2, "0")}
+                                    </div>
+                                    <span className="opacity-70">Securing your credential...</span>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <Link
+                                  href={`/certificate/${cert.certificateId}`}
+                                  target="_blank"
+                                  className="w-full py-2.5 rounded-xl font-semibold text-[#0F3D2E] text-sm border border-[#0F3D2E] cursor-pointer transition-all text-center flex items-center justify-center gap-2"
+                                  style={{ background: "transparent" }}
+                                >
+                                  <Award size={14} />
+                                  View Certificate
+                                </Link>
+                              );
+                            })()
+                          )}
+                        </div>
                       ) : (
                         <div className="space-y-4">
                           {/* Coupon Section */}

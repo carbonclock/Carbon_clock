@@ -6,7 +6,7 @@ export default function NavbarWrapper({ children }) {
   const pathname = usePathname();
 
   // Hide global Navbar & Footer on these pages
-  const hideOn = ["/dashboard", "/welcome", "/login", "/signup", "/course", "/assessment"];
+  const hideOn = ["/dashboard", "/welcome", "/login", "/signup", "/course", "/assessment", "/certificate"];
 
   if (hideOn.some(path => pathname.startsWith(path))) return null;
 

@@ -36,6 +36,16 @@ const UserSchema = new mongoose.Schema({
     default: [],
   },
 
+  certificates: [
+    {
+      courseSlug: { type: String, required: true },
+      courseTitle: { type: String, required: true },
+      completedAt: { type: Date, default: Date.now },
+      issueDate: { type: Date, default: Date.now },
+      certificateId: { type: String, required: true },
+    }
+  ],
+
   createdAt: {
     type: Date,
     default: Date.now,

@@ -30,17 +30,22 @@ export default function AuthGuard({ children }) {
       return;
     }
 
+    const isProtectedPage = PROTECTED_PAGES.some(path => pathname.startsWith(path));
+    const isCertificatePage = pathname.startsWith("/certificate");
+
     if (isSessionValid) {
       // ── User is LOGGED IN ──
-      // If they try to access ANY page that is NOT protected → redirect to dashboard
-      const isAccessingProtected = PROTECTED_PAGES.some(path => pathname.startsWith(path));
-      if (!isAccessingProtected) {
+      // If they try to access ANY page that is NOT protected AND not the certificate page → redirect to dashboard
+      // (Except for root '/' and common public pages if you want to allow them)
+      const isPublicAllowed = ["/", "/about", "/contact", "/founder", "/blog", "/certifications"].some(path => pathname === path);
+      
+      if (!isProtectedPage && !isCertificatePage && !isPublicAllowed) {
         router.replace("/dashboard");
       }
     } else {
       // ── User is LOGGED OUT ──
       // Redirect to login if they try to access protected pages
-      if (PROTECTED_PAGES.some(path => pathname.startsWith(path))) {
+      if (isProtectedPage) {
         router.replace("/login");
       }
     }
