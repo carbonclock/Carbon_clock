@@ -249,20 +249,6 @@ export default function ViewCertificatePage() {
                   </div>
                 </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  disabled={isDownloading}
-                  onClick={handleDownload}
-                  className="w-full mt-4 py-3 md:py-4 rounded-xl md:rounded-2xl bg-[#0F3D2E] text-white font-bold flex items-center justify-center gap-3 shadow-lg shadow-[#0F3D2E]/20 hover:bg-[#1A4A38] transition-all disabled:opacity-70"
-                >
-                  {isDownloading ? (
-                    <Loader2 className="animate-spin" size={18} />
-                  ) : (
-                    <Download size={18} />
-                  )}
-                  {isDownloading ? "Generating..." : "Download PDF"}
-                </motion.button>
               </motion.div>
 
               {/* Trust Badge */}
