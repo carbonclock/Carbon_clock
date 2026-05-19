@@ -1,781 +1,19 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, CheckCircle, XCircle, Clock, Camera, Mic, AlertTriangle, Lock } from "lucide-react";
+import { ArrowLeft, CheckCircle, XCircle, Clock, Camera, Mic, AlertTriangle, Lock, Smartphone } from "lucide-react";
 import DashboardNavbar from "@/components/DashboardNavbar";
 import Footer from "@/components/Footer";
 import AssessmentSuccess from "@/components/AssessmentSuccess";
+import AssessmentWatermark from "@/components/AssessmentWatermark";
+import * as tf from "@tensorflow/tfjs";
+import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
-/* ── Sample MCQ Questions ── */
-const assessmentData = {
-  "climate-change-science-solutions": {
-    title: "Climate Change: Science & Solutions",
-    emoji: "🌍",
-    headerBg: "#1A3D2B",
-    questions: [
-      {
-        id: 1,
-        question: "What is the primary greenhouse gas responsible for climate change?",
-        options: [
-          "Carbon Dioxide (CO₂)",
-          "Nitrogen Oxide (N₂O)",
-          "Methane (CH₄)",
-          "Ozone (O₃)",
-        ],
-        correctAnswer: 0,
-        explanation: "Carbon Dioxide is the primary greenhouse gas, accounting for about 75% of anthropogenic GHG emissions.",
-      },
-      {
-        id: 2,
-        question: "At what atmospheric CO₂ level were pre-industrial values?",
-        options: [
-          "350 ppm",
-          "280 ppm",
-          "450 ppm",
-          "200 ppm",
-        ],
-        correctAnswer: 1,
-        explanation: "Pre-industrial CO₂ levels were approximately 280 ppm. Current levels exceed 420 ppm.",
-      },
-      {
-        id: 3,
-        question: "What is a tipping point in the climate system?",
-        options: [
-          "A minor climate fluctuation",
-          "A critical threshold beyond which a system reorganizes abruptly",
-          "The highest temperature recorded annually",
-          "An agreement between countries on climate action",
-        ],
-        correctAnswer: 1,
-        explanation: "A tipping point is a critical threshold beyond which a climate system or subsystem reorganizes abruptly and irreversibly.",
-      },
-      {
-        id: 4,
-        question: "Which of the following is an example of climate mitigation?",
-        options: [
-          "Building seawalls to protect coastal areas",
-          "Planting drought-resistant crops",
-          "Transitioning to renewable energy",
-          "Improving water infrastructure",
-        ],
-        correctAnswer: 2,
-        explanation: "Mitigation reduces the causes of climate change (GHG emissions), while adaptation addresses impacts. Renewable energy is mitigation.",
-      },
-      {
-        id: 5,
-        question: "What does the Paris Agreement aim to limit global warming to?",
-        options: [
-          "2°C above pre-industrial levels",
-          "1.5°C to 2°C above pre-industrial levels",
-          "3°C above pre-industrial levels",
-          "1°C above pre-industrial levels",
-        ],
-        correctAnswer: 1,
-        explanation: "The Paris Agreement aims to limit global warming to well below 2°C, preferably to 1.5°C above pre-industrial levels.",
-      },
-      {
-        id: 6,
-        question: "Which gas has the highest warming potential per molecule?",
-        options: [
-          "Carbon Dioxide",
-          "Methane",
-          "Sulfur Hexafluoride",
-          "Nitrous Oxide",
-        ],
-        correctAnswer: 2,
-        explanation: "Sulfur Hexafluoride (SF₆) has an extremely high Global Warming Potential (23,500x that of CO₂).",
-      },
-      {
-        id: 7,
-        question: "What percentage of greenhouse gas emissions come from energy use?",
-        options: [
-          "25%",
-          "50%",
-          "65%",
-          "85%",
-        ],
-        correctAnswer: 2,
-        explanation: "Energy (electricity, heat, transport) accounts for approximately 65% of total global GHG emissions.",
-      },
-      {
-        id: 8,
-        question: "Which sector produces the most methane emissions?",
-        options: [
-          "Manufacturing",
-          "Agriculture",
-          "Waste",
-          "Energy",
-        ],
-        correctAnswer: 1,
-        explanation: "Agriculture (particularly livestock farming) is the largest source of methane emissions globally.",
-      },
-      {
-        id: 9,
-        question: "What is the role of the IPCC?",
-        options: [
-          "Enforce climate regulations",
-          "Assess scientific knowledge on climate change",
-          "Fund renewable energy projects",
-          "Negotiate international climate agreements",
-        ],
-        correctAnswer: 1,
-        explanation: "The IPCC (Intergovernmental Panel on Climate Change) assesses scientific, technical, and socio-economic information relevant to climate change.",
-      },
-      {
-        id: 10,
-        question: "Which renewable energy source is most abundant globally?",
-        options: [
-          "Solar",
-          "Wind",
-          "Hydropower",
-          "Geothermal",
-        ],
-        correctAnswer: 0,
-        explanation: "Solar energy has the largest theoretical potential to meet global energy demand.",
-      },
-      {
-        id: 11,
-        question: "What is the greenhouse effect?",
-        options: [
-          "The temperature inside a greenhouse",
-          "The trapping of heat in the atmosphere by gases",
-          "A method for growing crops",
-          "The annual temperature increase in cities",
-        ],
-        correctAnswer: 1,
-        explanation: "The greenhouse effect is the process where gases trap heat in the atmosphere, similar to how a greenhouse traps heat with its glass.",
-      },
-      {
-        id: 12,
-        question: "Which of these is NOT a climate feedback mechanism?",
-        options: [
-          "Ice-albedo feedback",
-          "Water vapor feedback",
-          "Cloud feedback",
-          "Fossil fuel feedback",
-        ],
-        correctAnswer: 3,
-        explanation: "Fossil fuel feedback is not a recognized climate feedback mechanism. The others are all documented positive feedbacks.",
-      },
-      {
-        id: 13,
-        question: "What is carbon sequestration?",
-        options: [
-          "Breaking down carbon molecules",
-          "Capturing and storing carbon dioxide",
-          "Burning organic matter",
-          "Removing nitrogen from the atmosphere",
-        ],
-        correctAnswer: 1,
-        explanation: "Carbon sequestration is the process of capturing and storing atmospheric CO₂ through natural or technological means.",
-      },
-      {
-        id: 14,
-        question: "Which activity has the largest carbon footprint per person?",
-        options: [
-          "Diet",
-          "Transportation",
-          "Home heating/cooling",
-          "Electricity consumption",
-        ],
-        correctAnswer: 2,
-        explanation: "Home heating and cooling (space conditioning) typically represents the largest portion of household carbon emissions.",
-      },
-      {
-        id: 15,
-        question: "What does NDC stand for?",
-        options: [
-          "National Development Code",
-          "Nationally Determined Contribution",
-          "Natural Disaster Coverage",
-          "Nuclear Diversity Commission",
-        ],
-        correctAnswer: 1,
-        explanation: "NDCs (Nationally Determined Contributions) are climate action plans submitted by countries under the Paris Agreement.",
-      },
-      {
-        id: 16,
-        question: "Which climate model is used by the IPCC for projections?",
-        options: [
-          "Coupled General Circulation Models (GCMs)",
-          "Simple Linear Models",
-          "Empirical Statistical Models",
-          "Historical Trend Models",
-        ],
-        correctAnswer: 0,
-        explanation: "The IPCC uses Coupled General Circulation Models (GCMs) and Earth System Models for climate projections.",
-      },
-      {
-        id: 17,
-        question: "What is ocean acidification?",
-        options: [
-          "The cooling of ocean water",
-          "Increased pH levels in the ocean",
-          "Decreased pH in oceans due to CO₂ absorption",
-          "The addition of acids to the ocean",
-        ],
-        correctAnswer: 2,
-        explanation: "Ocean acidification occurs when the ocean absorbs CO₂ from the atmosphere, forming carbonic acid and lowering pH.",
-      },
-      {
-        id: 18,
-        question: "Which country has set a net-zero target for 2050?",
-        options: [
-          "China only",
-          "USA only",
-          "Multiple countries including EU, UK, Japan",
-          "No countries yet",
-        ],
-        correctAnswer: 2,
-        explanation: "Multiple countries, including EU member states, UK, Japan, and others, have committed to net-zero by 2050.",
-      },
-      {
-        id: 19,
-        question: "What is the albedo effect?",
-        options: [
-          "The reflection of sunlight back to space",
-          "The absorption of heat in the ocean",
-          "The rotation of the Earth",
-          "The movement of tectonic plates",
-        ],
-        correctAnswer: 0,
-        explanation: "Albedo refers to the reflectivity of a surface. Ice has high albedo; melting ice reduces reflection, amplifying warming.",
-      },
-      {
-        id: 20,
-        question: "Which sector requires the most significant transformation for climate goals?",
-        options: [
-          "Agriculture",
-          "Waste management",
-          "Energy systems",
-          "Construction",
-        ],
-        correctAnswer: 2,
-        explanation: "Energy systems (power generation, heating, transport) require the most comprehensive transformation to achieve climate goals.",
-      },
-    ],
-  },
-  "carbon-accounting-reporting": {
-    title: "Carbon Accounting & Reporting",
-    emoji: "📊",
-    headerBg: "#1B3A5C",
-    questions: [
-      {
-        id: 1,
-        question: "What does Scope 1 emissions refer to?",
-        options: [
-          "Purchased electricity",
-          "Direct emissions from company-owned sources",
-          "Emissions from supply chain",
-          "Employee commuting",
-        ],
-        correctAnswer: 1,
-        explanation: "Scope 1 covers direct GHG emissions from sources owned or controlled by the organization.",
-      },
-      {
-        id: 2,
-        question: "Which of the following is an example of Scope 2 emissions?",
-        options: [
-          "Fuel combustion in company vehicles",
-          "Purchased electricity for office buildings",
-          "Supplier manufacturing emissions",
-          "Employee business travel",
-        ],
-        correctAnswer: 1,
-        explanation: "Scope 2 includes emissions from purchased electricity, steam, heating, and cooling.",
-      },
-      {
-        id: 3,
-        question: "What is the primary framework for carbon accounting?",
-        options: [
-          "ISO 9001",
-          "GHG Protocol Corporate Standard",
-          "IFRS Standards",
-          "SOX Compliance",
-        ],
-        correctAnswer: 1,
-        explanation: "The GHG Protocol Corporate Standard is the most widely used framework for measuring and reporting corporate GHG emissions.",
-      },
-      {
-        id: 4,
-        question: "Which is NOT included in Scope 3 emissions?",
-        options: [
-          "Supplier emissions",
-          "Employee commuting",
-          "Facility heating",
-          "Waste disposal",
-        ],
-        correctAnswer: 2,
-        explanation: "Facility heating would be Scope 2 (purchased energy). Scope 3 covers value chain emissions.",
-      },
-      {
-        id: 5,
-        question: "What is an organizational boundary?",
-        options: [
-          "The physical location of the company",
-          "The geographic area covered by operations",
-          "The definition of which entities to include in emissions inventory",
-          "The year-end cutoff for reporting",
-        ],
-        correctAnswer: 2,
-        explanation: "Organizational boundaries define which legal entities, subsidiaries, and operations are included in the carbon inventory.",
-      },
-      {
-        id: 6,
-        question: "What does the GRI stand for?",
-        options: [
-          "Global Reporting Initiative",
-          "Greenhouse Reporting Index",
-          "Green Resource Institute",
-          "Global Risk Inventory",
-        ],
-        correctAnswer: 0,
-        explanation: "GRI (Global Reporting Initiative) provides standards for sustainability reporting including emissions.",
-      },
-      {
-        id: 7,
-        question: "Which approach assigns emissions to the entity with operational control?",
-        options: [
-          "Equity share approach",
-          "Financial control approach",
-          "Operational control approach",
-          "Legal entity approach",
-        ],
-        correctAnswer: 2,
-        explanation: "The operational control approach allocates emissions based on operational responsibility regardless of ownership percentage.",
-      },
-      {
-        id: 8,
-        question: "What is materiality in the context of sustainability reporting?",
-        options: [
-          "The physical substance of products",
-          "Issues significant to business operations and stakeholders",
-          "The size of the company",
-          "The cost of compliance",
-        ],
-        correctAnswer: 1,
-        explanation: "Materiality identifies sustainability issues that significantly affect business and are of concern to stakeholders.",
-      },
-      {
-        id: 9,
-        question: "What is carbon intensity?",
-        options: [
-          "The concentration of carbon in air",
-          "Emissions per unit of output or activity",
-          "The strength of carbon dioxide",
-          "The color intensity of carbon",
-        ],
-        correctAnswer: 1,
-        explanation: "Carbon intensity measures emissions relative to output (e.g., CO₂ per unit produced or per dollar revenue).",
-      },
-      {
-        id: 10,
-        question: "Which verification standard is most common for carbon accounting?",
-        options: [
-          "ISO 9001",
-          "ISO 14064-1 and ISO 14065",
-          "ISO 50001",
-          "ISO 26000",
-        ],
-        correctAnswer: 1,
-        explanation: "ISO 14064 series covers GHG quantification, monitoring, reporting, and ISO 14065 covers verification bodies.",
-      },
-      {
-        id: 11,
-        question: "What is activity data in emissions calculations?",
-        options: [
-          "Information about marketing activities",
-          "Data on operational activities that generate emissions",
-          "Social media engagement metrics",
-          "Employee activity logs",
-        ],
-        correctAnswer: 1,
-        explanation: "Activity data quantifies the extent of activities that generate emissions (e.g., fuel consumption, electricity use).",
-      },
-      {
-        id: 12,
-        question: "What is an emission factor?",
-        options: [
-          "A multiplier for increasing emissions",
-          "The rate at which emissions decay",
-          "A coefficient relating activity data to GHG emissions",
-          "The percentage of total emissions",
-        ],
-        correctAnswer: 2,
-        explanation: "An emission factor converts activity data into GHG emissions (e.g., kg CO₂ per kWh of electricity).",
-      },
-      {
-        id: 13,
-        question: "Which standard requires third-party verification?",
-        options: [
-          "GRI Standards (optional)",
-          "Science-Based Targets initiative",
-          "EU Emissions Trading Scheme (mandatory)",
-          "Internal carbon accounting",
-        ],
-        correctAnswer: 2,
-        explanation: "The EU ETS mandates third-party verification of emissions, while others typically offer optional verification.",
-      },
-      {
-        id: 14,
-        question: "What is a carbon offset?",
-        options: [
-          "A reduction in emissions",
-          "A credit representing one ton of CO₂ equivalent reduction",
-          "A government subsidy",
-          "A tax deduction",
-        ],
-        correctAnswer: 1,
-        explanation: "A carbon offset is a credit representing one metric ton of CO₂ equivalent emission reductions or removals.",
-      },
-      {
-        id: 15,
-        question: "How often should emissions be reported?",
-        options: [
-          "Every 5 years",
-          "Annually (for most standards)",
-          "Every 3 years",
-          "On-demand",
-        ],
-        correctAnswer: 1,
-        explanation: "Most reporting standards require annual emissions reporting and transparent tracking of progress.",
-      },
-      {
-        id: 16,
-        question: "What does RE100 commitment require?",
-        options: [
-          "Zero emissions",
-          "100% renewable electricity",
-          "Complete supply chain transparency",
-          "Net-zero by 2050",
-        ],
-        correctAnswer: 1,
-        explanation: "RE100 is a global initiative where companies commit to 100% renewable electricity.",
-      },
-      {
-        id: 17,
-        question: "Which organization publishes the GHG Protocol?",
-        options: [
-          "World Bank",
-          "WRI and WBCSD",
-          "UN Environment Programme",
-          "International Energy Agency",
-        ],
-        correctAnswer: 1,
-        explanation: "The GHG Protocol is published by the World Resources Institute (WRI) and World Business Council for Sustainable Development (WBCSD).",
-      },
-      {
-        id: 18,
-        question: "What is the primary benefit of carbon accounting?",
-        options: [
-          "Reducing government taxes",
-          "Understanding and managing emissions",
-          "Improving product packaging",
-          "Reducing workforce",
-        ],
-        correctAnswer: 1,
-        explanation: "Carbon accounting enables organizations to understand their emissions and identify reduction opportunities.",
-      },
-      {
-        id: 19,
-        question: "How many primary GHG gases does the Kyoto Protocol identify?",
-        options: [
-          "4",
-          "6",
-          "8",
-          "10",
-        ],
-        correctAnswer: 1,
-        explanation: "The Kyoto Protocol covers six GHGs: CO₂, CH₄, N₂O, HFCs, PFCs, and SF₆.",
-      },
-      {
-        id: 20,
-        question: "What is a carbon budget?",
-        options: [
-          "The financial cost of emissions",
-          "The maximum allowable emissions for a period",
-          "The investment in green technology",
-          "The revenue from carbon offsets",
-        ],
-        correctAnswer: 1,
-        explanation: "A carbon budget is the total amount of GHG emissions an organization can produce while meeting climate goals.",
-      },
-    ],
-  },
-  "ghg-accounting-protocol": {
-    title: "GHG Accounting & the GHG Protocol",
-    emoji: "🏭",
-    headerBg: "#4A3800",
-    questions: [
-      {
-        id: 1,
-        question: "What is the primary focus of the GHG Protocol?",
-        options: [
-          "Environmental policy",
-          "Standardized GHG accounting and reporting",
-          "Renewable energy promotion",
-          "Carbon offset trading",
-        ],
-        correctAnswer: 1,
-        explanation: "The GHG Protocol provides standards for measuring and reporting greenhouse gas emissions.",
-      },
-      {
-        id: 2,
-        question: "Which GHG does the Protocol prioritize?",
-        options: [
-          "Only CO₂",
-          "Six major greenhouse gases",
-          "Methane only",
-          "Nitrogen oxides",
-        ],
-        correctAnswer: 1,
-        explanation: "The GHG Protocol covers all six major greenhouse gases for comprehensive emissions accounting.",
-      },
-      {
-        id: 3,
-        question: "What is the foundation of GHG Protocol calculations?",
-        options: [
-          "Historical trends",
-          "Activity data × Emission factors",
-          "Government estimates",
-          "Industry averages",
-        ],
-        correctAnswer: 1,
-        explanation: "The GHG Protocol uses the formula: Activity Data multiplied by Emission Factors to calculate emissions.",
-      },
-      {
-        id: 4,
-        question: "How many scopes are defined in the GHG Protocol?",
-        options: [
-          "2",
-          "3",
-          "4",
-          "5",
-        ],
-        correctAnswer: 1,
-        explanation: "The GHG Protocol defines three scopes of emissions: Scope 1, Scope 2, and Scope 3.",
-      },
-      {
-        id: 5,
-        question: "What year was the GHG Protocol Corporate Standard released?",
-        options: [
-          "1998",
-          "2001",
-          "2004",
-          "2008",
-        ],
-        correctAnswer: 1,
-        explanation: "The GHG Protocol Corporate Standard was first published in 2001.",
-      },
-      {
-        id: 6,
-        question: "Which IPCC category relates to energy?",
-        options: [
-          "Category 1",
-          "Category 2",
-          "Category 3",
-          "Category 4",
-        ],
-        correctAnswer: 0,
-        explanation: "IPCC Category 1 (Energy) is fundamental to GHG Protocol accounting.",
-      },
-      {
-        id: 7,
-        question: "What does GWP stand for?",
-        options: [
-          "Greenhouse Warming Potential",
-          "Global Warming Potential",
-          "Gas Warming Parameters",
-          "Gross Warming Protocol",
-        ],
-        correctAnswer: 1,
-        explanation: "GWP (Global Warming Potential) is used to compare the climate impact of different gases.",
-      },
-      {
-        id: 8,
-        question: "How is methane's GWP compared to CO₂?",
-        options: [
-          "Same as CO₂",
-          "25-28 times higher",
-          "5 times higher",
-          "2 times higher",
-        ],
-        correctAnswer: 1,
-        explanation: "Methane has a GWP of 25-28 times that of CO₂ over a 100-year period.",
-      },
-      {
-        id: 9,
-        question: "What is Scope 1 under the GHG Protocol?",
-        options: [
-          "Purchased electricity",
-          "Direct emissions",
-          "Business travel",
-          "Supplier emissions",
-        ],
-        correctAnswer: 1,
-        explanation: "Scope 1 includes direct emissions from sources owned or controlled by the organization.",
-      },
-      {
-        id: 10,
-        question: "What is Scope 2 under the GHG Protocol?",
-        options: [
-          "Direct emissions",
-          "Purchased electricity and steam",
-          "Supply chain emissions",
-          "Employee commuting",
-        ],
-        correctAnswer: 1,
-        explanation: "Scope 2 covers indirect emissions from purchased electricity, steam, heating, and cooling.",
-      },
-      {
-        id: 11,
-        question: "Which approach does the Protocol recommend for organizational boundaries?",
-        options: [
-          "Equity share only",
-          "Financial control only",
-          "Operational control only",
-          "Organization can choose appropriate approach",
-        ],
-        correctAnswer: 3,
-        explanation: "The GHG Protocol allows organizations to choose between equity share, financial control, or operational control.",
-      },
-      {
-        id: 12,
-        question: "What is the most common organizational boundary approach?",
-        options: [
-          "Equity share",
-          "Financial control",
-          "Operational control",
-          "Legal entity",
-        ],
-        correctAnswer: 2,
-        explanation: "Operational control is the most commonly used approach in the GHG Protocol.",
-      },
-      {
-        id: 13,
-        question: "How should companies handle equity investments under the Protocol?",
-        options: [
-          "Include all investments",
-          "Exclude all investments",
-          "Use equity share approach",
-          "Use market value",
-        ],
-        correctAnswer: 2,
-        explanation: "Equity share approach allocates emissions proportional to the percentage stake in the company.",
-      },
-      {
-        id: 14,
-        question: "What is a major challenge in Scope 3 accounting?",
-        options: [
-          "Lack of data availability",
-          "Complexity and scope",
-          "High verification costs",
-          "Technical limitations",
-        ],
-        correctAnswer: 1,
-        explanation: "Scope 3 is challenging due to its broad scope and the complexity of supply chain emissions.",
-      },
-      {
-        id: 15,
-        question: "How many Scope 3 categories exist in the GHG Protocol?",
-        options: [
-          "5",
-          "10",
-          "15",
-          "20",
-        ],
-        correctAnswer: 2,
-        explanation: "The GHG Protocol defines 15 categories of Scope 3 emissions.",
-      },
-      {
-        id: 16,
-        question: "What should be included in upstream Scope 3?",
-        options: [
-          "Retail sales",
-          "Purchased goods and services",
-          "Product use",
-          "End-of-life treatment",
-        ],
-        correctAnswer: 1,
-        explanation: "Upstream Scope 3 includes purchased goods and services from the supply chain.",
-      },
-      {
-        id: 17,
-        question: "What is downstream Scope 3?",
-        options: [
-          "Supplier emissions",
-          "Manufacturing emissions",
-          "Distribution and use phase emissions",
-          "Direct facility emissions",
-        ],
-        correctAnswer: 2,
-        explanation: "Downstream Scope 3 includes distribution, product use, and end-of-life treatment.",
-      },
-      {
-        id: 18,
-        question: "How frequently should GHG inventories be updated?",
-        options: [
-          "Every 5 years",
-          "Every 3 years",
-          "Annually",
-          "As needed",
-        ],
-        correctAnswer: 2,
-        explanation: "The GHG Protocol recommends annual GHG inventory updates and reporting.",
-      },
-      {
-        id: 19,
-        question: "What is a base year in GHG Protocol?",
-        options: [
-          "The current year",
-          "A historical reference year for tracking progress",
-          "The most recent year",
-          "An average year",
-        ],
-        correctAnswer: 1,
-        explanation: "A base year is a historical reference year used to track emissions reduction progress.",
-      },
-      {
-        id: 20,
-        question: "What should accompany GHG emissions data according to the Protocol?",
-        options: [
-          "Financial data only",
-          "Uncertainty assessment and methodology documentation",
-          "Marketing materials",
-          "Historical trends",
-        ],
-        correctAnswer: 1,
-        explanation: "The Protocol requires uncertainty assessment and clear methodology documentation with emissions data.",
-      },
-    ],
-  },
-  "life-cycle-assessment": {
-    title: "Life Cycle Assessment (LCA)",
-    emoji: "♻️",
-    headerBg: "#3B1F72",
-    questions: Array.from({ length: 20 }, (_, i) => ({
-      id: i + 1,
-      question: `Sample LCA Question ${i + 1}?`,
-      options: ["Option A", "Option B", "Option C", "Option D"],
-      correctAnswer: Math.floor(Math.random() * 4),
-      explanation: "This is a sample explanation for the LCA question.",
-    })),
-  },
-  "sustainability-fundamentals-esg": {
-    title: "Sustainability Fundamentals & ESG",
-    emoji: "🌿",
-    headerBg: "#1A4A38",
-    questions: Array.from({ length: 20 }, (_, i) => ({
-      id: i + 1,
-      question: `Sample ESG Question ${i + 1}?`,
-      options: ["Option A", "Option B", "Option C", "Option D"],
-      correctAnswer: Math.floor(Math.random() * 4),
-      explanation: "This is a sample explanation for the ESG question.",
-    })),
-  },
-};
+import { assessmentData } from "./data";
+
+/* ── Assessment Page Component ── */
 
 export default function AssessmentPage() {
   const router = useRouter();
@@ -788,7 +26,7 @@ export default function AssessmentPage() {
   const [answers, setAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
-  
+
   // Timer & Proctoring State
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
   const [isTestStarted, setIsTestStarted] = useState(false);
@@ -798,6 +36,79 @@ export default function AssessmentPage() {
   const [isRequestingMedia, setIsRequestingMedia] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
   const videoRef = useRef(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // AI Proctoring States
+  const [model, setModel] = useState(null);
+  const [isPhoneDetected, setIsPhoneDetected] = useState(false);
+  const [phoneDetectionWarning, setPhoneDetectionWarning] = useState(false);
+  const [isTerminated, setIsTerminated] = useState(false);
+  const [terminationReason, setTerminationReason] = useState("");
+  const detectionInterval = useRef(null);
+  const audioContextRef = useRef(null);
+  const analyserRef = useRef(null);
+
+  useEffect(() => {
+    // Load AI Model
+    const loadModel = async () => {
+      try {
+        const loadedModel = await cocoSsd.load();
+        setModel(loadedModel);
+        console.log("AI Proctoring Model Loaded");
+      } catch (err) {
+        console.error("Error loading AI model:", err);
+      }
+    };
+    loadModel();
+
+    return () => {
+      if (detectionInterval.current) clearInterval(detectionInterval.current);
+    };
+  }, []);
+
+  const terminateTest = useCallback((reason) => {
+    setIsTerminated(true);
+    setTerminationReason(reason);
+    setIsTestStarted(false); // Stop the test
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(track => track.stop());
+      setMediaStream(null);
+    }
+    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      audioContextRef.current.close();
+    }
+    if (detectionInterval.current) {
+      clearInterval(detectionInterval.current);
+    }
+  }, [mediaStream]);
+
+  useEffect(() => {
+    if (isTestStarted && model && videoRef.current && !isTerminated) {
+      detectionInterval.current = setInterval(async () => {
+        if (videoRef.current && videoRef.current.readyState === 4) {
+          const predictions = await model.detect(videoRef.current);
+          
+          // 1. Phone Detection
+          const phone = predictions.find(p => p.class === "cell phone" && p.score > 0.6);
+          if (phone) {
+            terminateTest("Mobile phone detected. Electronic devices are strictly prohibited during the assessment.");
+            return;
+          }
+
+          // 2. Face (Person) Detection
+          const person = predictions.find(p => p.class === "person" && p.score > 0.6);
+          if (!person) {
+            terminateTest("No face/person detected in the camera frame. You must remain visible throughout the test.");
+            return;
+          }
+        }
+      }, 2000); // Check every 2 seconds
+    }
+
+    return () => {
+      if (detectionInterval.current) clearInterval(detectionInterval.current);
+    };
+  }, [isTestStarted, model, isTerminated, terminateTest]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -842,7 +153,7 @@ export default function AssessmentPage() {
       }, 1000);
     }
     return () => clearInterval(timer);
-  }, [isTestStarted, showResults, timeLeft]);
+  }, [isTestStarted, showResults, timeLeft, handleSubmit]);
 
   // Attach media stream to video element
   useEffect(() => {
@@ -872,6 +183,54 @@ export default function AssessmentPage() {
     }
   }, [showResults, mediaStream]);
 
+  const startVoiceDetection = (stream) => {
+    try {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+      analyser.fftSize = 256;
+      analyserRef.current = analyser;
+      audioContextRef.current = audioContext;
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      let noiseViolationFrames = 0;
+      const checkVolume = () => {
+        if (isTerminated) return;
+        analyser.getByteFrequencyData(dataArray);
+        
+        // FOCUS ON VOICE FREQUENCIES: 
+        // Human voice is typically between 300Hz and 3000Hz.
+        // We skip the first few bins (low frequency/fan rumble) and the very high ones.
+        let voiceSum = 0;
+        let binsCount = 0;
+        for (let i = 2; i < 20; i++) { // Bins approx 375Hz to 3750Hz
+          voiceSum += dataArray[i];
+          binsCount++;
+        }
+        const voiceAverage = voiceSum / binsCount;
+        
+        // Threshold increased to 85 - very high, only catches loud/clear speech
+        if (voiceAverage > 85) { 
+          noiseViolationFrames++;
+          // Sound must be sustained for ~2 seconds (120 frames) to count as communication
+          if (noiseViolationFrames > 120) {
+            terminateTest("Continuous loud noise or speech detected. Please ensure a quiet environment.");
+            return;
+          }
+        } else {
+          noiseViolationFrames = 0;
+        }
+        requestAnimationFrame(checkVolume);
+      };
+      checkVolume();
+    } catch (e) {
+      console.error("Audio detection error:", e);
+    }
+  };
+
   const startTest = async () => {
     // Ensure fresh start: clean up any existing stream before requesting new one
     if (mediaStream) {
@@ -882,12 +241,20 @@ export default function AssessmentPage() {
     setIsRequestingMedia(true);
     setMediaError(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
       });
       setMediaStream(stream);
+      startVoiceDetection(stream);
       setIsTestStarted(true);
+
+      // Enforce Full Screen
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {
+          console.log("Fullscreen request failed");
+        });
+      }
     } catch (err) {
       console.error("Media error:", err);
       setMediaError("Webcam and Microphone access are required to start the assessment for proctoring purposes.");
@@ -895,6 +262,49 @@ export default function AssessmentPage() {
       setIsRequestingMedia(false);
     }
   };
+
+  // Prevent Alt+Tab, Window Switching, and Fullscreen Exit
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden" && isTestStarted && !showResults && !isTerminated) {
+        terminateTest("Tab switching or window minimization detected. Assessment terminated for security.");
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && isTestStarted && !showResults && !isTerminated) {
+        terminateTest("Fullscreen mode exited. Assessment terminated for security.");
+      }
+    };
+
+    const preventKeys = (e) => {
+      if (!isTestStarted || showResults || isTerminated) return;
+      
+      // Prevent PrintScreen, F12, Ctrl+Shift+I, Ctrl+C, Ctrl+V, Ctrl+U, Ctrl+S
+      if (
+        e.key === "PrintScreen" || 
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && e.key === "I") ||
+        (e.ctrlKey && (e.key === "c" || e.key === "v" || e.key === "u" || e.key === "s"))
+      ) {
+        e.preventDefault();
+        alert("Security Violation: Action not permitted during assessment.");
+      }
+    };
+
+    window.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    window.addEventListener("keydown", preventKeys);
+    document.addEventListener("contextmenu", (e) => {
+      if (isTestStarted && !showResults) e.preventDefault();
+    });
+
+    return () => {
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      window.removeEventListener("keydown", preventKeys);
+    };
+  }, [isTestStarted, showResults, isTerminated, terminateTest]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -928,7 +338,7 @@ export default function AssessmentPage() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     let correctCount = 0;
     assessment.questions.forEach((question, i) => {
       if (answers[i] === question.correctAnswer) {
@@ -942,9 +352,9 @@ export default function AssessmentPage() {
     if (calculatedScore >= 70) {
       handlePassAssessment();
     }
-  };
+  }, [assessment, answers, handlePassAssessment]);
 
-  const handlePassAssessment = async () => {
+  const handlePassAssessment = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch("/api/course/pass-assessment", {
@@ -953,18 +363,18 @@ export default function AssessmentPage() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           courseSlug: slug,
-          courseTitle: assessment.title 
+          courseTitle: assessment.title
         })
       });
       const data = await res.json();
       if (data.success) {
         // Update local user data
-        const updatedUser = { 
-          ...user, 
+        const updatedUser = {
+          ...user,
           passedAssessments: data.passedAssessments,
-          certificates: data.certificates 
+          certificates: data.certificates
         };
         setUser(updatedUser);
         localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -972,7 +382,7 @@ export default function AssessmentPage() {
     } catch (error) {
       console.error("Failed to save pass status:", error);
     }
-  };
+  }, [slug, assessment, user]);
 
   const handleGoToDashboard = () => {
     router.push("/dashboard");
@@ -987,9 +397,54 @@ export default function AssessmentPage() {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      {/* Termination Screen Overlay */}
+      <AnimatePresence>
+        {isTerminated && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[200] bg-[#0F3D2E] flex items-center justify-center p-6 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-white rounded-[40px] p-10 md:p-16 max-w-2xl w-full shadow-2xl border border-red-100"
+            >
+              <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8 animate-pulse">
+                <AlertTriangle size={48} className="text-red-500" />
+              </div>
+              <h1 className="font-serif-display text-4xl font-bold text-[#0F3D2E] mb-6">
+                Assessment Terminated
+              </h1>
+              <div className="bg-red-50 border border-red-100 rounded-2xl p-6 mb-8 text-left">
+                <p className="text-red-600 font-bold uppercase text-[10px] tracking-widest mb-2">Security Violation Detected</p>
+                <p className="text-[#0F3D2E] font-medium leading-relaxed">
+                  {terminationReason}
+                </p>
+              </div>
+              <p className="text-[#5C7A6E] mb-10 text-sm leading-relaxed">
+                Your assessment has been automatically cancelled due to a violation of our security protocols. 
+                For the integrity of our certifications, continuous monitoring of your video and audio is mandatory.
+              </p>
+              <motion.button
+                onClick={() => router.push("/dashboard")}
+                className="bg-[#0F3D2E] text-white px-10 py-4 rounded-2xl font-bold hover:bg-[#1a5d48] transition-all shadow-xl shadow-[#0F3D2E]/20"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Return to Dashboard
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Dynamic Watermark */}
+      {isTestStarted && !showResults && !isTerminated && <AssessmentWatermark user={user} />}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
         .font-serif-display { font-family: 'DM Serif Display', serif; }
+        body { user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; }
       `}</style>
 
       {showResults && <DashboardNavbar user={user} onLogout={handleLogout} />}
@@ -998,10 +453,10 @@ export default function AssessmentPage() {
         {/* Floating Camera Preview */}
         {isTestStarted && !showResults && mediaStream && (
           <div className="fixed bottom-6 right-6 w-48 h-36 bg-black rounded-2xl overflow-hidden border-2 border-[#D4AF37] shadow-2xl z-50">
-            <video 
-              autoPlay 
-              muted 
-              playsInline 
+            <video
+              autoPlay
+              muted
+              playsInline
               ref={videoRef}
               className="w-full h-full object-cover scale-x-[-1]"
             />
@@ -1015,7 +470,7 @@ export default function AssessmentPage() {
         {/* 2-Minute Warning Overlay */}
         <AnimatePresence>
           {showWarning && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -50 }}
@@ -1027,16 +482,41 @@ export default function AssessmentPage() {
           )}
         </AnimatePresence>
 
+        {/* Phone Detection Warning Overlay */}
+        <AnimatePresence>
+          {phoneDetectionWarning && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              className="fixed inset-0 z-[110] flex items-center justify-center pointer-events-none px-6"
+            >
+              <div className="bg-red-600/95 backdrop-blur-md text-white p-12 rounded-[40px] shadow-2xl flex flex-col items-center gap-6 border-4 border-white/20 max-w-lg text-center">
+                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
+                  <Smartphone size={48} className="animate-pulse" />
+                </div>
+                <h2 className="text-4xl font-bold uppercase tracking-tight">Mobile Phone Detected</h2>
+                <p className="text-xl font-medium opacity-90 leading-relaxed text-red-50">
+                  Usage of mobile devices is strictly prohibited. Your session is being flagged for review.
+                </p>
+                <div className="px-6 py-2 bg-white text-red-600 rounded-full text-sm font-bold uppercase tracking-widest">
+                  Active Monitoring
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Exit Test Confirmation Modal */}
         <AnimatePresence>
           {showExitModal && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-[#0F3D2E]/80 backdrop-blur-sm"
             >
-              <motion.div 
+              <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -1050,7 +530,7 @@ export default function AssessmentPage() {
                 </h3>
                 <p className="text-[#5C7A6E] mb-8 leading-relaxed">
                   Are you sure you want to exit the test? <br />
-                  <span className="font-bold text-red-600">Once you exit, you can't take the test again.</span>
+                  <span className="font-bold text-red-600">Once you exit, you can&apos;t take the test again.</span>
                 </p>
                 <div className="flex flex-col gap-3">
                   <motion.button
@@ -1085,7 +565,7 @@ export default function AssessmentPage() {
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#C29231]/5 rounded-full blur-3xl -ml-40 -mb-40" />
 
             <div className="max-w-4xl w-full mx-auto relative z-10">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white/80 backdrop-blur-xl rounded-[40px] p-8 md:p-12 shadow-[0_32px_64px_-16px_rgba(15,61,46,0.12)] border border-white"
@@ -1111,20 +591,20 @@ export default function AssessmentPage() {
                     </h3>
                     <div className="space-y-4">
                       {[
-                        { 
-                          icon: <Clock size={18} />, 
-                          title: "10-Minute Window", 
-                          desc: "Fixed duration. Auto-submission occurs precisely at 00:00." 
+                        {
+                          icon: <Clock size={18} />,
+                          title: "10-Minute Window",
+                          desc: "Fixed duration. Auto-submission occurs precisely at 00:00."
                         },
-                        { 
-                          icon: <Camera size={18} />, 
-                          title: "Biometric Monitoring", 
-                          desc: "Continuous webcam and microphone access is mandatory for session validation." 
+                        {
+                          icon: <Camera size={18} />,
+                          title: "Biometric Monitoring",
+                          desc: "Continuous webcam and microphone access is mandatory for session validation."
                         },
-                        { 
-                          icon: <CheckCircle size={18} />, 
-                          title: "70% Proficiency", 
-                          desc: "Requires 14 correct responses out of 20 to earn certification." 
+                        {
+                          icon: <CheckCircle size={18} />,
+                          title: "70% Proficiency",
+                          desc: "Requires 14 correct responses out of 20 to earn certification."
                         }
                       ].map((item, i) => (
                         <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/50 border border-[#E0EDE8] hover:border-[#0F3D2E]/20 transition-colors">
@@ -1170,7 +650,7 @@ export default function AssessmentPage() {
                 </div>
 
                 {mediaError && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="mb-8 p-4 bg-red-50 text-red-700 rounded-2xl flex items-center gap-3 border border-red-100 text-xs font-semibold shadow-inner"
@@ -1274,21 +754,19 @@ export default function AssessmentPage() {
                         <motion.button
                           key={i}
                           onClick={() => handleAnswer(i)}
-                          className={`w-full p-5 rounded-2xl text-left font-medium transition-all border-2 relative group ${
-                            answers[currentQuestion] === i
-                              ? "bg-[#0F3D2E] text-white border-[#0F3D2E] shadow-lg shadow-[#0F3D2E]/20"
-                              : "bg-white text-[#0F3D2E] border-[#E0EDE8] hover:border-[#0F3D2E]/30 hover:bg-[#FDFCFB]"
-                          }`}
+                          className={`w-full p-5 rounded-2xl text-left font-medium transition-all border-2 relative group ${answers[currentQuestion] === i
+                            ? "bg-[#0F3D2E] text-white border-[#0F3D2E] shadow-lg shadow-[#0F3D2E]/20"
+                            : "bg-white text-[#0F3D2E] border-[#E0EDE8] hover:border-[#0F3D2E]/30 hover:bg-[#FDFCFB]"
+                            }`}
                           whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.99 }}
                         >
                           <div className="flex items-center gap-4">
                             <div
-                              className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors ${
-                                answers[currentQuestion] === i
-                                  ? "bg-white border-white text-[#0F3D2E]"
-                                  : "border-[#E0EDE8] text-[#5C7A6E] group-hover:border-[#0F3D2E]/30"
-                              }`}
+                              className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-bold transition-colors ${answers[currentQuestion] === i
+                                ? "bg-white border-white text-[#0F3D2E]"
+                                : "border-[#E0EDE8] text-[#5C7A6E] group-hover:border-[#0F3D2E]/30"
+                                }`}
                             >
                               {String.fromCharCode(65 + i)}
                             </div>
@@ -1346,18 +824,17 @@ export default function AssessmentPage() {
                       {assessment.questions.map((_, i) => {
                         const isAnswered = answers[i] !== undefined;
                         const isActive = currentQuestion === i;
-                        
+
                         return (
                           <motion.button
                             key={i}
                             onClick={() => setCurrentQuestion(i)}
-                            className={`aspect-square rounded-xl flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                              isActive
-                                ? "bg-[#0F3D2E] text-white border-[#0F3D2E] ring-4 ring-[#E0EDE8]"
-                                : isAnswered
+                            className={`aspect-square rounded-xl flex items-center justify-center text-xs font-bold border-2 transition-all ${isActive
+                              ? "bg-[#0F3D2E] text-white border-[#0F3D2E] ring-4 ring-[#E0EDE8]"
+                              : isAnswered
                                 ? "bg-white text-[#2E7D5B] border-[#2E7D5B] hover:bg-[#F0F7F4]"
                                 : "bg-white text-[#d64545] border-[#d64545] hover:bg-[#FFF5F5]"
-                            }`}
+                              }`}
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                           >
@@ -1391,45 +868,45 @@ export default function AssessmentPage() {
             {/* Results Section */}
             <section className="py-20 px-6 flex-1 flex items-center" style={{ background: "#F5F0E8" }}>
               <div className="max-w-4xl w-full mx-auto">
-                  {passed ? (
-                    <AssessmentSuccess 
-                      score={score} 
-                      totalQuestions={assessment.questions.length} 
-                      courseTitle={assessment.title} 
-                    />
-                  ) : (
-                    <div className="bg-white rounded-2xl p-12 text-center border border-[#E0EDE8]"
-                         style={{ boxShadow: "0 8px 32px rgba(26, 74, 58, 0.12)" }}>
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 0.6 }}
-                        className="mb-6"
-                      >
-                        <XCircle size={80} className="mx-auto text-[#d64545]" />
-                      </motion.div>
-                      <h2 className="font-serif-display text-4xl font-bold text-[#0F3D2E] mb-2">
-                        Keep Trying
-                      </h2>
-                      <p className="text-[#5C7A6E] text-lg mb-6">You need 70% to pass. Review the course materials and try again!</p>
-                      
-                      <div className="mb-8">
-                        <p className="text-5xl font-bold text-[#D4AF37] mb-2">{score.toFixed(1)}%</p>
-                        <p className="text-[#5C7A6E]">
-                          {Object.values(answers).reduce((count, answer, i) => count + (answer === assessment.questions[i].correctAnswer ? 1 : 0), 0)} out of {assessment.questions.length} correct
-                        </p>
-                      </div>
+                {passed ? (
+                  <AssessmentSuccess
+                    score={score}
+                    totalQuestions={assessment.questions.length}
+                    courseTitle={assessment.title}
+                  />
+                ) : (
+                  <div className="bg-white rounded-2xl p-12 text-center border border-[#E0EDE8]"
+                    style={{ boxShadow: "0 8px 32px rgba(26, 74, 58, 0.12)" }}>
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.6 }}
+                      className="mb-6"
+                    >
+                      <XCircle size={80} className="mx-auto text-[#d64545]" />
+                    </motion.div>
+                    <h2 className="font-serif-display text-4xl font-bold text-[#0F3D2E] mb-2">
+                      Keep Trying
+                    </h2>
+                    <p className="text-[#5C7A6E] text-lg mb-6">You need 70% to pass. Review the course materials and try again!</p>
 
-                      <motion.button
-                        onClick={handleGoToDashboard}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="px-8 py-3 rounded-full font-semibold text-white"
-                        style={{ background: "#0F3D2E" }}
-                      >
-                        Return to Dashboard
-                      </motion.button>
+                    <div className="mb-8">
+                      <p className="text-5xl font-bold text-[#D4AF37] mb-2">{score.toFixed(1)}%</p>
+                      <p className="text-[#5C7A6E]">
+                        {Object.values(answers).reduce((count, answer, i) => count + (answer === assessment.questions[i].correctAnswer ? 1 : 0), 0)} out of {assessment.questions.length} correct
+                      </p>
                     </div>
-                  )}
+
+                    <motion.button
+                      onClick={handleGoToDashboard}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-8 py-3 rounded-full font-semibold text-white"
+                      style={{ background: "#0F3D2E" }}
+                    >
+                      Return to Dashboard
+                    </motion.button>
+                  </div>
+                )}
               </div>
             </section>
           </>
